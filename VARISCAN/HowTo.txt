@@ -1,0 +1,8 @@
+Requirements:
+	- extended cppStats (https://github.com/clhunsen/cppstats)
+
+HowTo:
+	1. Run cppStats on source folder to get featurelocations
+		(e.g., ./cppstats.py --kind featurelocations)
+	2. Run Program with path to cppStats result folder as argument
+		(e.g., /home/dwelgaz/Desktop/Development/Thesis/Data/Example)
