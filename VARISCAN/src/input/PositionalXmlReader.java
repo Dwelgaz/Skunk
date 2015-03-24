@@ -27,6 +27,7 @@ public class PositionalXmlReader {
 
 	/** The Constant LINE_NUMBER_KEY_NAME. */
 	final static String LINE_NUMBER_KEY_NAME = "lineNumber";
+	final static String END_NUMBER_KEY_NAME = "endlineNumber";
 
 	/**
 	 * Read xml.
@@ -77,7 +78,7 @@ public class PositionalXmlReader {
 				for (int i = 0; i < attributes.getLength(); i++) {
 					el.setAttribute(attributes.getQName(i),
 							attributes.getValue(i));
-				}
+				}							
 				el.setUserData(LINE_NUMBER_KEY_NAME,
 						String.valueOf(this.locator.getLineNumber()), null);
 				elementStack.push(el);
@@ -93,7 +94,7 @@ public class PositionalXmlReader {
 				} else {
 					final Element parentEl = elementStack.peek();
 					parentEl.appendChild(closedEl);
-				}
+				}				
 			}
 
 			@Override

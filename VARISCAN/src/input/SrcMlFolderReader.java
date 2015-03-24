@@ -16,8 +16,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
-
-// TODO: AnnotationBundle: Methodenlänge
+// TODO: Undisciplined granularty (see AOSD2011 cppstats)
 // TODO Latently USed Parameters: in den methodlocatiosn, gucken ob in der parameterliste features sind + calls der methode suchen Und schauen, in wieviel varianten das vorhanden is
 
 public class SrcMlFolderReader {
@@ -143,7 +142,7 @@ public class SrcMlFolderReader {
 		if	(parent.getNodeName().equals("unit"))
 			return;
 		else
-		{
+		{		
 			// get function signature
 			String functionSignature = this.createFunctionSignature(parent);
 			
@@ -151,7 +150,7 @@ public class SrcMlFolderReader {
 			data.Method method = MethodCollection.GetMethod(loc.filePath, functionSignature);
 			if (method == null)
 			{
-				method = new data.Method(functionSignature, Integer.parseInt((String) parent.getUserData("lineNumber")));
+				method = new data.Method(functionSignature, Integer.parseInt((String) parent.getUserData("lineNumber")), this.countLines(parent.getTextContent()));
 				MethodCollection.AddMethodToFile(loc.filePath, method);
 			}
 			
@@ -178,6 +177,18 @@ public class SrcMlFolderReader {
 			result = result.replace("\n", " ");
 		
 		return result;
+	}
+	
+	/**
+	 * Count the amount of lines in a string.
+	 *
+	 * @param str the string
+	 * @return amount of lines
+	 */
+	private int countLines(String str)
+	{
+		String[] lines = str.split("\r\n|\r|\n");
+		return  lines.length;
 	}
 	
 }
