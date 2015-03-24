@@ -152,6 +152,10 @@ public class CppStatsFolderReader {
 				}
 			}
 			
+			// if there is still an element
+			while (locs.size() > 0)
+				locs.pop().SaveFeatureLocationInformation(locs.size() + 1);
+			
 		} catch (IOException e) {
 			// TODO LOG
 			e.printStackTrace();
