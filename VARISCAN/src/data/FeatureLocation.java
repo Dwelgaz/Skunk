@@ -32,6 +32,8 @@ public class FeatureLocation {
 
 	public EnumGranularity granularity;
 	
+	public EnumDiscipline discipline;
+	
 	/**
 	 * Instantiates a new feature location.
 	 *
@@ -55,6 +57,7 @@ public class FeatureLocation {
 		this.combinedWith = new LinkedList<FeatureLocation>();
 		
 		this.granularity = EnumGranularity.NOTDEFINED;
+		this.discipline = EnumDiscipline.NOTDEFINED;
 	}
 	
 	/**
@@ -76,7 +79,7 @@ public class FeatureLocation {
 	 * @param loc the loc
 	 * @param nodeName the node name
 	 */
-	public void setGranularity(Node node)
+	public void SetGranularity(Node node)
 	{
 		// decide the granularity of the node based on the nodeName
 		EnumGranularity glValue = EnumGranularity.NOTDEFINED;
@@ -98,6 +101,9 @@ public class FeatureLocation {
 				glValue = EnumGranularity.FUNCTIONSIGNATURE;
 				break;
 			case "argument":
+				glValue = EnumGranularity.EXPRESSION;
+				break;
+			case "argument_list":
 				glValue = EnumGranularity.EXPRESSION;
 				break;
 			case "call":
@@ -179,5 +185,69 @@ public class FeatureLocation {
 				this.corresponding.minGranularity = this.granularity;
 		}
 
+	}
+
+	/**
+	 * Sets the discipline of the feature location based on node inside the feature (e.g, a FeatureLocation containing one case is undisciplined)
+	 *
+	 * @param node a node inside the feature location
+	 */
+	public void SetDiscipline(Node node)
+	{
+		// if not notdefined or disciplined, check for undisciplined node annotations
+		if (this.discipline.GetValue() < 0)
+			return;
+		
+		// decide on the basis of the siblings of each annotation
+		EnumDiscipline discValue = EnumDiscipline.NOTDEFINED;
+		switch (node.getNodeName())
+		{
+			case "else":
+				discValue = EnumDiscipline.UNDISC_ELSE_IF;
+				break;
+			case "case":
+				discValue = EnumDiscipline.UNDISC_CASE;
+				break;
+			case "expr":
+				discValue = EnumDiscipline.UNDISC_EXPRESSION;
+				break;
+			case "parameter_list":
+				discValue = EnumDiscipline.UNDISC_PARAM;
+				break;
+			case "param":
+				discValue = EnumDiscipline.UNDISC_PARAM;
+				break;
+			case "argument":
+				discValue = EnumDiscipline.UNDISC_PARAM;
+				break;
+			case "argument_list":
+				discValue = EnumDiscipline.UNDISC_PARAM;
+				break;
+			case "if":
+				// check if the if node has a child node. If the previous sibling of the <else> child node is not the <then> node, it is undisciplined
+				for (int current = 0; current < node.getChildNodes().getLength(); current++)
+				{
+					Node child = node.getChildNodes().item(current);
+					if (child.getNodeName().equals("else"))
+					{
+						if (!node.getChildNodes().item(current - 1).equals("then"))
+						{
+							discValue = EnumDiscipline.UNDISC_IF;
+							break;
+						}
+						else
+						{
+							discValue = EnumDiscipline.DISCIPLINED;
+							break;
+						}
+					}
+				}
+				break;
+			default:
+				discValue = EnumDiscipline.DISCIPLINED;
+				break;
+		}
+		
+		this.discipline = discValue;
 	}
 }

@@ -17,8 +17,13 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
 // TODO: Undisciplined granularty (see AOSD2011 cppstats)
-// TODO Latently USed Parameters: in den methodlocatiosn, gucken ob in der parameterliste features sind + calls der methode suchen Und schauen, in wieviel varianten das vorhanden is
-
+// TODO Latently USed Parameters: in den methodlocatiosn, gucken ob in der parameterliste features sind 
+/**
+Speculative Generality:
+- Alle calls auf methoden suchen, die vom namen her in der source sind
+- Versuch diese einer Methode zuzuweisen (exakt!), sofern möglich
+- bei den übrigen schauen, ob es parameter dort gibt, die nicht zugewiesen sind
+*/
 public class SrcMlFolderReader {
 	
 	/**
@@ -96,9 +101,10 @@ public class SrcMlFolderReader {
 		//System.out.println(loc.start + 1);
 		while (sibling != null && Integer.parseInt((String) sibling.getUserData("lineNumber")) <= loc.end + 1)
 		{
-			//System.out.println(sibling.getNodeName());
-			loc.setGranularity(sibling);
-
+			// set granularity and try to assign a discpline
+			loc.SetGranularity(sibling);
+			loc.SetDiscipline(sibling);
+			
 			// text nodes do not contain line numbers --> next until not #text
 			sibling = sibling.getNextSibling();
 			while (sibling != null && sibling.getNodeName().equals("#text"))
