@@ -16,8 +16,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
-// TODO: Undisciplined granularty (see AOSD2011 cppstats)
 // TODO Latently USed Parameters: in den methodlocatiosn, gucken ob in der parameterliste features sind 
+
 /**
 Speculative Generality:
 - Alle calls auf methoden suchen, die vom namen her in der source sind
