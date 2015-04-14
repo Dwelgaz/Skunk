@@ -25,6 +25,9 @@ public class Feature implements Comparable<Feature>{
 	public EnumGranularity maxGranularity = EnumGranularity.NOTDEFINED;
 	public EnumGranularity minGranularity = EnumGranularity.NOTDEFINED;
 	
+	/* scattering information */
+	public ArrayList<String> compilationFiles;
+	
 	/**
 	 * Gets the lines of code.
 	 *
@@ -54,6 +57,7 @@ public class Feature implements Comparable<Feature>{
 	{
 		this.Name = name;
 		this.locs = new ArrayList<FeatureLocation>();
+		this.compilationFiles = new ArrayList<String>();
 		
 		this.maxNestingDepth = -1;
 		this.minNestingDepth = -1;
@@ -84,10 +88,24 @@ public class Feature implements Comparable<Feature>{
 		if (this.minNestingDepth > loc.nestingDepth)
 			this.minNestingDepth = loc.nestingDepth;
 		
+		// add cu if not already in the list
+		if (!this.compilationFiles.contains(loc.filePath))
+			this.compilationFiles.add(loc.filePath);
 		
-		 //System.out.println(loc.filePath + "\t\t\t" + this.Name + "\t\t" + loc.notFlag);
+		// count loc in feature collection
+		FeatureExpressionCollection.amountOfFeatureLocs++;
 	}
 
+	/**
+	 * Gets the amount compilation files.
+	 *
+	 * @return the int
+	 */
+	public int GetAmountCompilationFiles()
+	{
+		return this.compilationFiles.size();
+	}
+	
 	@Override
 	public int compareTo(Feature o) {
 		if (o.getLofc() > this.getLofc())

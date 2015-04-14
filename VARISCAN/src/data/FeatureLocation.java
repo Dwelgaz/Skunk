@@ -15,11 +15,15 @@ public class FeatureLocation {
 	/** The file path. */
 	public String filePath;
 	
+	
+	
 	/** The start position. */
 	public int start;
 	
 	/** The end position. */
 	public int end;
+	
+	
 	
 	/** The nesting depth. */
 	public int nestingDepth;
@@ -30,9 +34,15 @@ public class FeatureLocation {
 	/** The list of features of combined feature locaions (i.e. Feature 1 && Feature 2. */
 	public LinkedList<FeatureLocation> combinedWith;
 
-	public EnumGranularity granularity;
 	
+	
+	public EnumGranularity granularity;
 	public EnumDiscipline discipline;
+	
+	
+	
+	/** The method that contains the featurelocation (if inside a method); else = null.  */
+	public Method inMethod;
 	
 	/**
 	 * Instantiates a new feature location.

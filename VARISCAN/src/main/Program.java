@@ -60,7 +60,7 @@ public class Program {
 //		}
 	
 		DetectionConfig config = new DetectionConfig();
-		config.RatioFeatureToFeature = 2;
+		config.Feature_MeanLofcRatio = 2;
 		//config.RatioFeatureToProject = 0.1;
 		
 		Detector detector = new Detector(config);

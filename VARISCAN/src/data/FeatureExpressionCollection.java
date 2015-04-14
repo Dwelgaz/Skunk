@@ -13,6 +13,7 @@ public class FeatureExpressionCollection
 	private static int _count;
 	private static int _loc;
 	private static int _meanLofc;
+	public static int amountOfFeatureLocs;
 	
 	/**
 	 * Gets the count of features.
@@ -92,6 +93,7 @@ public class FeatureExpressionCollection
 		_features = new ArrayList<Feature>();
 		_count = 0;
 		_loc = 0;
+		amountOfFeatureLocs = 0;
 	}
 	
 	/**

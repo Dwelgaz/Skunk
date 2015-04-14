@@ -24,6 +24,12 @@ public class Method
 	/** The lines of feature code inside the method. */
 	public int lofc;
 	
+	/** The amount of nestings in the method (1 per nesting) */
+	public int nestingSum;
+	
+	/** The maximal nesting depth in the method */
+	public int nestingDepthMax;
+	
 	/** The lines of visible annotated code. (amount of loc that is inside annotations)*/
 	public ArrayList<Integer> loac;
 	
@@ -42,6 +48,8 @@ public class Method
 		this.functionSignatureXml = signature;
 		this.start = start;
 		this.loc = loc;
+		this.nestingSum = 0;
+		this.nestingDepthMax = 0;
 		
 		// do not count start line while calculating the end
 		this.end = start + loc - 1;
@@ -62,8 +70,17 @@ public class Method
 	{
 		if (!this.featureLocations.contains(loc))
 		{
+			// connect feature to the method
 			this.featureLocations.add(loc);
+			loc.inMethod = this;
 			
+			// assign nesting depth values
+			if (loc.nestingDepth > this.nestingDepthMax)
+				this.nestingDepthMax = loc.nestingDepth;
+			
+			if (loc.nestingDepth > 0)
+				this.nestingSum++;
+				
 			// calculate lines of feature code (if the feature is longer than the method, use the method end)
 			if (loc.end > this.end)
 				this.lofc += this.end - loc.start;
@@ -100,5 +117,41 @@ public class Method
 	public int GetLinesOfAnnotatedCode()
 	{
 		return this.loac.size();
+	}
+
+	/**
+	 * Gets the number of feature constants of the method
+	 *
+	 * @return the int
+	 */
+	public int GetNumberOfFeatureConstants()
+	{
+		ArrayList<String> constants = new ArrayList<String>();
+		
+		for (FeatureLocation loc : this.featureLocations)
+		{
+			if (!constants.contains(loc.corresponding.Name))
+				constants.add(loc.corresponding.Name);
+		}
+		
+		return constants.size();
+	}
+
+	/**
+	 * Cet the amount of negated annotations
+	 *
+	 * @return the amount of negated annotations
+	 */
+	public int GetNegationCount()
+	{
+		int result = 0;
+		
+		for (FeatureLocation loc : this.featureLocations)
+		{
+			if (loc.notFlag)
+				result++;
+		}
+		
+		return result;
 	}
 }
