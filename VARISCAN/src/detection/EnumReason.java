@@ -5,8 +5,8 @@ package detection;
  * Can be used for later filtering for more complex configurations
  */
 public enum EnumReason {
-	LARGEFEATURE_BIGGERMEANLOFC,
-	LARGEFEATURE_BIGPROJECTPART,
+	LARGEFEATURE_LOFCTOMEANLOFC,
+	LARGEFEATURE_LOFCTOLOC,
 	
 	ANNOTATIONBUNDLE_LOFCTOLOC,
 	ANNOTATIONBUNDLE_LOACTOLOC,

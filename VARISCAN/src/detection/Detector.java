@@ -241,7 +241,7 @@ public class Detector {
 			
 			// add the feature location if the feature lofc is bigger than the minimal
 			if (lofc >= minLofc)
-				this.addFeatureLocWithReason(loc, EnumReason.LARGEFEATURE_BIGGERMEANLOFC);
+				this.addFeatureLocWithReason(loc, EnumReason.LARGEFEATURE_LOFCTOMEANLOFC);
 		}
 	}
 
@@ -262,7 +262,7 @@ public class Detector {
 			
 			// add the feature location
 			if (feat.getLofc() >= minLofc)
-				this.addFeatureLocWithReason(loc, EnumReason.LARGEFEATURE_BIGPROJECTPART);
+				this.addFeatureLocWithReason(loc, EnumReason.LARGEFEATURE_LOFCTOLOC);
 		}
 	}
 	
