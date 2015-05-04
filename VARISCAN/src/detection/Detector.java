@@ -1,8 +1,10 @@
 package detection;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 import data.Feature;
 import data.FeatureExpressionCollection;
@@ -36,11 +38,13 @@ public class Detector {
 	 */
 	public Map<FeatureLocation, ArrayList<EnumReason>> Perform()
 	{
-		System.out.println("... Start detection based on the config file:...");
+		System.out.println("... Start detection based on the config file...");
 		
 		checkFeatureCollection();
 		
 		checkMethodCollection();
+		
+		filterResults();
 		
 		System.out.println("... detection done!");
 		
@@ -50,7 +54,13 @@ public class Detector {
 
 	
 	
-	
+	/**
+	 * Filter results based on the threshold of the configuration
+	 */
+	private void filterResults()
+	{
+		
+	}
 	
 	
 	/**
@@ -61,6 +71,9 @@ public class Detector {
 		{
 			for (Method meth : MethodCollection.methodsPerFile.get(file))
 			{
+				// sort functions
+				Collections.sort(meth.featureLocations);
+				
 				// ratio lofc to loc
 				checkForMethodLofcToLoc(meth);
 				
@@ -198,7 +211,7 @@ public class Detector {
 	private void checkForMethodNestingSum(Method meth) {
 		if (this.config.Method_NestingSum != -1)
 		{
-			if (meth.nestingSum > this.config.Method_NestingSum)
+			if (meth.nestingSum >= this.config.Method_NestingSum)
 				for(FeatureLocation loc : meth.featureLocations)
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGSUM);
 		}
@@ -211,11 +224,66 @@ public class Detector {
 	 * @param meth the method
 	 */
 	private void checkForMethodNestingDepthMax(Method meth) {
-		if (this.config.Method_NestingDepthMax != -1)
+		if (this.config.Method_NestingDepthMin != -1)
 		{
-			if (meth.nestingSum > this.config.Method_NestingDepthMax)
+				// check nesting via stacks and nesting depth
+				Stack<FeatureLocation> nestingStack = new Stack<FeatureLocation>();		
+				int beginNesting = -1;
+				
 				for(FeatureLocation loc : meth.featureLocations)
-					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMAX);
+				{	
+					// add the item instantly if the stack is empty, set the beginning nesting depth to the nd of the loc (nesting depth is file-based not method based)
+					if (nestingStack.isEmpty())
+					{
+						beginNesting = loc.nestingDepth;
+						nestingStack.push(loc);
+					}
+					else
+					{
+						// current nesting in consideration with starting location
+						int curNesting = loc.nestingDepth - beginNesting;
+						
+						// 0 is the beginning nesting degree, everything higher than zero means it is a nested location
+						if(curNesting > 0)
+							nestingStack.push(loc);
+						else
+						{
+							// calculate nestingdepth of bundle
+							int ndm = -1;
+							for (FeatureLocation current : nestingStack)
+								if ((current.nestingDepth - beginNesting) > ndm)
+									ndm = current.nestingDepth - beginNesting;
+							
+							// if the ndm of the bundle is higher than the configuration add all to the result
+							if (ndm >= config.Method_NestingDepthMin)
+							{
+								while (!nestingStack.isEmpty())
+									this.addFeatureLocWithReason(nestingStack.pop(), EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMAX);
+							}
+							else
+								nestingStack.empty();
+						}
+					}
+				}
+				
+				// final emptiing if something is left
+				if (!nestingStack.isEmpty())
+				{
+					// calculate nestingdepth of bundle
+					int ndm = -1;
+					for (FeatureLocation current : nestingStack)
+						if ((current.nestingDepth - beginNesting) > ndm)
+							ndm = current.nestingDepth - beginNesting;
+					
+					if (ndm >= config.Method_NestingDepthMin)
+					{
+						while (!nestingStack.isEmpty())
+							this.addFeatureLocWithReason(nestingStack.pop(), EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMAX);
+					}
+					else
+						nestingStack.empty();
+				}
+			//}
 		}
 	}
 	

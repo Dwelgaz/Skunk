@@ -7,7 +7,7 @@ import org.w3c.dom.Node;
 /**
  * The Class FeatureLocation. Saves location information for each feature occurence
  */
-public class FeatureLocation {
+public class FeatureLocation implements Comparable<FeatureLocation>{
 	
 	/** The corresponding feature on this location. */
 	public Feature corresponding;
@@ -259,5 +259,16 @@ public class FeatureLocation {
 		}
 		
 		this.discipline = discValue;
+	}
+
+	@Override
+	public int compareTo(FeatureLocation arg0) 
+	{
+		if (this.start > arg0.start)
+			return 1;
+		else if (this.start < arg0.start)
+			return -1;
+		else
+			return 0;
 	}
 }
