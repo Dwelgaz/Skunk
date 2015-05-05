@@ -117,30 +117,30 @@ public class DetectionConfig {
 		res += "[Feature-based Values]";
 		
 		if (this.Feature_MeanLofcRatio != -1000)
-			res += "\r\nRatio - LOFC to mean LOFC: " + this.Feature_MeanLofcRatio;
+			res += "\r\nRatio - LOFC to mean LOFC: " + this.Feature_MeanLofcRatio + "; mandatory=" + this.Feature_MeanLofcRatio_Mand;
 		if (this.Feature_ProjectLocRatio != -1000)
-			res += "\r\nRatio - LOFC to LOC: " + this.Feature_ProjectLocRatio;
+			res += "\r\nRatio - LOFC to LOC: " + this.Feature_ProjectLocRatio + "; mandatory=" + this.Feature_ProjectLocRatio_Mand;
 		if (this.Feature_NoflToSumRatio != -1000)
-			res += "\r\nRatio - Featurelocations(FL) to all FL: " + this.Feature_MeanLofcRatio;
+			res += "\r\nRatio - Featurelocations(FL) to all FL: " + this.Feature_MeanLofcRatio + "; mandatory=" + this.Feature_MeanLofcRatio_Mand;
 		if (this.Feature_NumberOfCompilUnits != -1)
-			res += "\r\nAmount - Number of compilation units: " + this.Feature_NumberOfCompilUnits;
+			res += "\r\nAmount - Number of compilation units: " + this.Feature_NumberOfCompilUnits + "; mandatory=" + this.Feature_NumberOfCompilUnits_Mand;
 		
 		res += "\r\n\r\n[Method-based Values]";
 		
 		if (this.Method_LofcToLocRatio != -1000)
-			res += "\r\nRatio - LOFC to LOC: " + this.Method_LofcToLocRatio;
+			res += "\r\nRatio - LOFC to LOC: " + this.Method_LofcToLocRatio + "; mandatory=" + this.Method_LofcToLocRatio_Mand;
 		if (this.Method_LoacToLocRatio != -1000)
-			res += "\r\nRatio - LOAC to LOC: " + this.Method_LoacToLocRatio;
+			res += "\r\nRatio - LOAC to LOC: " + this.Method_LoacToLocRatio + "; mandatory=" + this.Method_LoacToLocRatio_Mand;
 		if (this.Method_NumberOfFeatureLocs != -1)
-			res += "\r\nAmount - Number of featurelocations: " + this.Method_NumberOfFeatureLocs;
+			res += "\r\nAmount - Number of featurelocations: " + this.Method_NumberOfFeatureLocs + "; mandatory=" + this.Method_NumberOfFeatureLocs_Mand;
 		if (this.Method_NumberOfFeatureConstants != -1)
-			res += "\r\nAmount - Number of featureconstants: " + this.Method_NumberOfFeatureConstants;
+			res += "\r\nAmount - Number of featureconstants: " + this.Method_NumberOfFeatureConstants + "; mandatory=" + this.Method_NumberOfFeatureConstants_Mand;
 		if (this.Method_NestingSum != -1)
-			res += "\r\nAmount - Number of nestings: " + this.Method_NestingSum;
+			res += "\r\nAmount - Number of nestings: " + this.Method_NestingSum + "; mandatory=" + this.Method_NestingSum_Mand;
 		if (this.Method_NestingDepthMin != -1)
-			res += "\r\nAmount - Minimal nesting depth: " + this.Method_NestingDepthMin;
+			res += "\r\nAmount - Minimal nesting depth: " + this.Method_NestingDepthMin + "; mandatory=" + this.Method_NestingDepthMin_Mand;
 		if (this.Method_NegationCount != -1)
-			res += "\r\nAmount - Number of negations: " + this.Method_NegationCount;
+			res += "\r\nAmount - Number of negations: " + this.Method_NegationCount + "; mandatory=" + this.Method_NegationCount_Mand;
 		
 		return res;
 	}

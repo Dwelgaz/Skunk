@@ -1,5 +1,6 @@
 package detection;
 
+import java.awt.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,11 +56,49 @@ public class Detector {
 	
 	
 	/**
-	 * Filter results based on the threshold of the configuration
+	 * Filter results based on the mandatory values of the configuration
 	 */
 	private void filterResults()
 	{
+		// check for mandatory attributes in the detection configuration
+		ArrayList<EnumReason> mandatories = new ArrayList<EnumReason>();
 		
+		if (config.Feature_MeanLofcRatio_Mand)
+			mandatories.add(EnumReason.LARGEFEATURE_LOFCTOMEANLOFC);
+		if (config.Feature_ProjectLocRatio_Mand)
+			mandatories.add(EnumReason.LARGEFEATURE_LOFCTOLOC);
+		if (config.Feature_NoflToSumRatio_Mand)
+			mandatories.add(EnumReason.SHOTGUNSURGERY_NOFLTOSUMNOFL);
+		if (config.Feature_NumberOfCompilUnits_Mand)
+			mandatories.add(EnumReason.SHOTGUNSURGERY_NUMBERCOMPILATIONUNITS);
+		if (config.Method_LoacToLocRatio_Mand)
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_LOACTOLOC);
+		if (config.Method_LofcToLocRatio_Mand)
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_LOFCTOLOC);
+		if (config.Method_NegationCount_Mand)
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNEGATIONS);
+		if (config.Method_NestingDepthMin_Mand)
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMAX);
+		if (config.Method_NestingSum_Mand)
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGSUM);
+		if (config.Method_NumberOfFeatureConstants_Mand)
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONST);
+		if (config.Method_NumberOfFeatureLocs_Mand)
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURELOCS);
+		
+		// delete featurelocations from the result if it does not contain a mandatory attribute
+		ArrayList<FeatureLocation> toDelete = new ArrayList<FeatureLocation>();
+		for (FeatureLocation key : featureResult.keySet())
+		{
+			for (EnumReason mandatory : mandatories)
+			{
+				if (!featureResult.get(key).contains(mandatory))
+					toDelete.add(key);
+			}
+		}
+		
+		for (FeatureLocation key : toDelete)
+			featureResult.remove(key);
 	}
 	
 	

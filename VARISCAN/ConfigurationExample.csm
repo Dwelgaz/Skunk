@@ -11,7 +11,7 @@
 
 ## A ratio that defines the difference between the LOFC of a feature to the project LOC.
 ## Example: ProjectLocRatio=0.5; LOC=1000 --> All features with LOFC >= 500
-Feature_ProjectLocRatio=0.15
+Feature_ProjectLocRatio=0.15;mandatory
 
 ## A ratio that defines the amount of feature locations to the total amount of feature locations.
 ## Example: NoflToSumRatio=0.1; Total NOFL=500 --> All features with more than 50 feature locations
@@ -19,7 +19,7 @@ Feature_ProjectLocRatio=0.15
 
 ## A threshold that defines in how many compilation units, a feature has to have at least one feature location.
 ## Example: NumberOfCompilUnits=5; Features with 5 different feature locations if 5 compilation units
-# Feature_NumberOfCompilUnits=-1
+ Feature_NumberOfCompilUnits=2
 
 
 #### Method-based Ratios/Thresholds ####
