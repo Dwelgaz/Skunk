@@ -89,7 +89,6 @@ public class SrcMlFolderReader {
 		catch (Exception ex)
 		{
 			ex.printStackTrace();
-			// TODO log
 		}
 	}
 
@@ -124,7 +123,6 @@ public class SrcMlFolderReader {
 			byte[] encoded= Files.readAllBytes(Paths.get(filePath));
 			return new String(encoded, Charset.forName(("UTF-8")));
 		} catch (IOException e) {
-			// TODO Log
 		}
 		return "";
 	}

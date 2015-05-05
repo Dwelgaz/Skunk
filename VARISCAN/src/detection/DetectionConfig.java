@@ -149,5 +149,11 @@ public class DetectionConfig {
 	
 	// TODO featureoccurences Anzahl der Featureexpression (siehe Loac)
 	// TODO Median für lofc
-	// TODO Scoping
+	// TODO Annotation File --> selbe wie bundle, nur auf file ebene
+	// TODO Speculative Generalty
+	// TODO Logging und Zeitverbrauch pro größerer Operation
+	// TODO In Output: Overview pro Attribut
+	// TODO In Output für jede Reason die entsprechende Zahl noch anzeigen
+	// TODO DetectionResult vor Presentation abspeichern möglich machen (z.b. eclipse einbindung)
+	//
 }

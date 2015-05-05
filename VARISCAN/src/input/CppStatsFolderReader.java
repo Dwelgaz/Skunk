@@ -66,7 +66,7 @@ public class CppStatsFolderReader {
 //			}
 //			
 //		} catch (IOException e) {
-//			// TODO LOG
+//		
 //			e.printStackTrace();
 //		}
 //		
@@ -157,7 +157,6 @@ public class CppStatsFolderReader {
 				locs.pop().SaveFeatureLocationInformation(locs.size() + 1);
 			
 		} catch (IOException e) {
-			// TODO LOG
 			e.printStackTrace();
 		}
 		
@@ -190,7 +189,6 @@ public class CppStatsFolderReader {
 			}
 			
 		} catch (IOException e) {
-			// TODO LOG
 			e.printStackTrace();
 		}
 		

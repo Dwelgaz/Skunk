@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import output.Presenter;
+import output.AnalyzedDataHandler;
 import output.ProcessedDataHandler;
 import data.FeatureExpressionCollection;
 import data.FeatureLocation;
@@ -70,11 +70,17 @@ public class Program {
 			Detector detector = new Detector(conf);
 			HashMap<FeatureLocation, ArrayList<EnumReason>> res = (HashMap<FeatureLocation, ArrayList<EnumReason>>) detector.Perform();
 			
-			Presenter presenter = new Presenter(conf);
+			AnalyzedDataHandler presenter = new AnalyzedDataHandler(conf);
 			presenter.saveResults(res);
 		}
 	}
 	
+	/**
+	 * Analyze input to decide what to do during runtime
+	 *
+	 * @param args the input arguments
+	 * @return true, if input is correct
+	 */
 	private static boolean analyzeInput(String[] args)
 	{
 		// for easier handling, transform to list

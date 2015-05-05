@@ -1,6 +1,5 @@
 package detection;
 
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,7 +77,7 @@ public class Detector {
 		if (config.Method_NegationCount_Mand)
 			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNEGATIONS);
 		if (config.Method_NestingDepthMin_Mand)
-			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMAX);
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMIN);
 		if (config.Method_NestingSum_Mand)
 			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGSUM);
 		if (config.Method_NumberOfFeatureConstants_Mand)
@@ -297,7 +296,7 @@ public class Detector {
 							if (ndm >= config.Method_NestingDepthMin)
 							{
 								while (!nestingStack.isEmpty())
-									this.addFeatureLocWithReason(nestingStack.pop(), EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMAX);
+									this.addFeatureLocWithReason(nestingStack.pop(), EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMIN);
 							}
 							else
 								nestingStack.empty();
@@ -317,7 +316,7 @@ public class Detector {
 					if (ndm >= config.Method_NestingDepthMin)
 					{
 						while (!nestingStack.isEmpty())
-							this.addFeatureLocWithReason(nestingStack.pop(), EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMAX);
+							this.addFeatureLocWithReason(nestingStack.pop(), EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMIN);
 					}
 					else
 						nestingStack.empty();
