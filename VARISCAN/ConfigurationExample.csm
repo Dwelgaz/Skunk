@@ -1,0 +1,53 @@
+## "#" can be used for descriptions
+## A ";mandatory" behind a value means, that the corresponding attribute must be a part of the result for each feature location
+## A location that does not include the corresponding attribute, won't be part of the result.
+
+
+#### Feature-based Ratios/Thresholds ####
+
+## A ratio the defines the difference between LOFC of a feature to the mean LOFC of all features.
+## Example: MeanLofcRatio=1.5; MeanLofc=200 --> All features with LOFC >= 300 
+# Feature_MeanLofcRatio=-1000
+
+## A ratio that defines the difference between the LOFC of a feature to the project LOC.
+## Example: ProjectLocRatio=0.5; LOC=1000 --> All features with LOFC >= 500
+Feature_ProjectLocRatio=0.15
+
+## A ratio that defines the amount of feature locations to the total amount of feature locations.
+## Example: NoflToSumRatio=0.1; Total NOFL=500 --> All features with more than 50 feature locations
+# Feature_NoflToSumRatio=-1000
+
+## A threshold that defines in how many compilation units, a feature has to have at least one feature location.
+## Example: NumberOfCompilUnits=5; Features with 5 different feature locations if 5 compilation units
+# Feature_NumberOfCompilUnits=-1
+
+
+#### Method-based Ratios/Thresholds ####
+
+## A ratio that defines the percentage of LOFC to LOC in a method
+## Example: LofcToLocRatio=0.5; LOC of Method=500 --> All feature locations within a method that combined result in a LOFC of more than 250
+# Method_LofcToLocRatio=-1000
+
+## A ratio that defines the percentage of LOAC to LOC in a method
+## Example: LoacToLocRatio=0.5; LOC of Method=500 --> All feature locations within a method that combined result in a LOAC of more than 250
+# Method_LoacToLocRatio=-1000
+
+## A threshold that defines how much feature locations must be within a method
+## Example: NumberOfFeatureLocs=5 --> All feature locations within a method that combined are more than 5 different feature locations.
+# Method_NumberOfFeatureLocs=-1
+
+## A threshold that defines how much feature constants must be within a method
+## Example: NumberOfFeatureConstants=5 --> All feature locations within a method that combined are more than 5 different feature constants.
+# Method_NumberOfFeatureConstants=-1
+
+## A threshold that defines how much nesting must exist inside a method. Each nesting is counted per feature location.
+## Example:
+# Method_NestingSum=-1
+
+## A threshold that defines how deep a nesting must go.
+## Example: NestingDepthMin=2 --> All feature locations within a method that build a nesting bundle with at least a nesting depth of 2
+# Method_NestingDepthMin=-1
+
+## A threshold that defines how much negations must exist in a method
+## Example:
+# Method_NegationCount=-1

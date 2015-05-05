@@ -1,8 +1,12 @@
 package data;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * The Class MethodCollection.
@@ -88,5 +92,29 @@ public class MethodCollection
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Serialize the features into a xml representation
+	 *
+	 * @return A xml representation of this object.
+	 */
+	public static String SerializeMethods()
+	{
+		XStream stream = new XStream();
+		String xmlFeatures = stream.toXML(methodsPerFile);
+		
+		return xmlFeatures;
+	}
+	
+	/**
+	 * Deserializes an xml string into the collection.
+	 *
+	 * @param xml the serialized xml representation
+	 */
+	public static void DeserialzeMethods(File xmlFile)
+	{
+		XStream stream = new XStream();
+		methodsPerFile = (HashMap<String, List<Method>>) stream.fromXML(xmlFile);
 	}
 }

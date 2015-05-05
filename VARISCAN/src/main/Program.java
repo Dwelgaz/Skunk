@@ -1,20 +1,34 @@
 package main;
 
+import input.CppStatsFolderReader;
+import input.SrcMlFolderReader;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import output.Presenter;
+import output.ProcessedDataHandler;
 import data.FeatureExpressionCollection;
 import data.FeatureLocation;
 import data.MethodCollection;
 import detection.DetectionConfig;
 import detection.Detector;
 import detection.EnumReason;
-import input.CppStatsFolderReader;
-import input.SrcMlFolderReader;
 
 public class Program {
 
+	/** The code smell configuration. */
+	private static DetectionConfig conf = null;
+	
+	/** The path of the source folder. */
+	private static String sourcePath = "";
+	
+	/** A flag that defines, if intermediate formats will be saved. */
+	public static boolean saveIntermediate = false;
+	
 	/**
 	 * The main method.
 	 *
@@ -27,28 +41,108 @@ public class Program {
 		MethodCollection.Initialize();
 		
 		// gather input
-		String path = args[0];
+		boolean run = analyzeInput(args);
 		
-		// process necessary csv files in project folder
-		CppStatsFolderReader cppReader = new  CppStatsFolderReader(path);
-		cppReader.ProcessFiles();
-
-		// process srcML files
-		SrcMlFolderReader mlReader = new SrcMlFolderReader();
-		mlReader.ProcessFiles();
+		if (!run)
+		{
+			System.out.println("Program exits due to input error.");
+			return;
+		}
+		
+		if (!sourcePath.isEmpty())
+		{
+			// process necessary csv files in project folder
+			CppStatsFolderReader cppReader = new  CppStatsFolderReader(sourcePath);
+			cppReader.ProcessFiles();
 	
-		DetectionConfig config = new DetectionConfig();
-		//config.Method_NestingDepthMin = 2;  
-		// config.Method_NumberOfFeatureConstants = 5;
-		// config.Method_LoacToLocRatio = 0.6;
-		 config.Feature_ProjectLocRatio = 0.15;
+			// process srcML files
+			SrcMlFolderReader mlReader = new SrcMlFolderReader();
+			mlReader.ProcessFiles();
+			
+			// save processed data
+			if (saveIntermediate)
+				ProcessedDataHandler.SaveProcessedData();
+		}
 		
-		Detector detector = new Detector(config);
-		HashMap<FeatureLocation, ArrayList<EnumReason>> res = (HashMap<FeatureLocation, ArrayList<EnumReason>>) detector.Perform();
+		// run detection with current configuration
+		if (conf != null)
+		{
+			Detector detector = new Detector(conf);
+			HashMap<FeatureLocation, ArrayList<EnumReason>> res = (HashMap<FeatureLocation, ArrayList<EnumReason>>) detector.Perform();
+			
+			Presenter presenter = new Presenter(conf);
+			presenter.saveResults(res);
+		}
+	}
+	
+	private static boolean analyzeInput(String[] args)
+	{
+		// for easier handling, transform to list
+		List<String> input = Arrays.asList(args);
 		
-		Presenter presenter = new Presenter(config);
-		presenter.saveResults(res);
+		// get the path to the codesmell configuration
+		if (input.contains("--config"))
+		{
+			try 
+			{
+				String configPath = input.get(input.indexOf("--config") + 1);
+				File f = new File(configPath);
 
+				if(f.exists() && !f.isDirectory()) 
+					conf = new DetectionConfig(configPath);
+				else 
+				{
+					System.out.println("The path to the configuration file does not exist.");
+					return false;
+				}
+			} 
+			catch (Exception e) 
+			{
+				System.out.println("ERROR: Could not load code smell configuration file!");
+				e.printStackTrace();
+				return false;
+			}
+		}
+		
+		if (input.contains("--saveIntermediate"))
+		{
+			saveIntermediate = true;
+		}
+		
+		// get the path of the source folder
+		if (input.contains("--source"))
+		{
+			try {
+				String path = input.get(input.indexOf("--source") + 1);
+				File f = new File(path);
+				
+				if (f.exists() && f.isDirectory())
+					sourcePath = path;
+				else
+				{
+					System.out.println("Source path does not exist.");
+					return false;
+				}
+			} 
+			catch (Exception e) 
+			{
+				System.out.println("ERROR: Could not load source folder");
+				e.printStackTrace();
+				return false;
+			}
+		}
+		// read previously processed data
+		else if (input.contains("--processed"))
+		{
+			ProcessedDataHandler.LoadProcessedData(input.get(input.indexOf("--processed") + 1));
+		}
+		else
+		{
+			System.out.println("You either need to set a source folder (--source) or a processed data folder (--processed)!");
+			return false;
+		}
+		
+		return true;
 	}
 
 }

@@ -1,39 +1,114 @@
 package detection;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+
+import org.apache.commons.io.FileUtils;
+
 public class DetectionConfig {
 
 	/** A ratio that defines the difference of a feature to the mean lofc of other features (1 = returns all features that are as big as the mean value and bigger)*/
 	public double Feature_MeanLofcRatio = -1000;
+	public boolean Feature_MeanLofcRatio_Mand = false;
 	
 	/** A ratio that defines the ratio between a feature lofc and the project loc (1 = 100% of the code)*/
 	public double Feature_ProjectLocRatio = -1000;
+	public boolean Feature_ProjectLocRatio_Mand = false;
 	
 	/** A ratio that defines the ratio between the amount of feature locations for a feature to the amount of feature locations in the project */
 	public double Feature_NoflToSumRatio = -1000;
+	public boolean Feature_NoflToSumRatio_Mand = false;
 	
 	/** The amount of compilation units (files) the feature is in */
 	public double Feature_NumberOfCompilUnits = -1;
+	public boolean Feature_NumberOfCompilUnits_Mand = false;
 	
 	/** A ratio that defines the percentage of lofc to loc (of a method) (1 = 100% of the code*/
 	public double Method_LofcToLocRatio = -1000;
+	public boolean Method_LofcToLocRatio_Mand = false;
 	
 	/** A ratio that defines the percentage of loac to loc (of a method) (1 = 100% of the code) */
 	public double Method_LoacToLocRatio = -1000;
+	public boolean Method_LoacToLocRatio_Mand = false;
 	
 	/** The amount of feature locations a method should have minimally*/
 	public int Method_NumberOfFeatureLocs = -1;
+	public boolean Method_NumberOfFeatureLocs_Mand = false;
 	
 	/** The amount of feature constants a method should have minimally */
 	public int Method_NumberOfFeatureConstants = -1;
+	public boolean Method_NumberOfFeatureConstants_Mand = false;
 	
 	/** The minimal nesting depth of a method. (summarized nestings) */
 	public int Method_NestingSum = -1;
+	public boolean Method_NestingSum_Mand = false;
 	
 	/** The minimal nesting depth of a method.*/
 	public int Method_NestingDepthMin = -1;
+	public boolean Method_NestingDepthMin_Mand = false;
 	
 	/** The minimal negation count of a method */
 	public int Method_NegationCount = -1;
+	public boolean Method_NegationCount_Mand = false;
+	
+	/** Defines how much values have been set. */
+	public int SetValues = 0;
+	
+	
+	/**
+	 * Instantiates a new detection config.
+	 *
+	 * @param pathToFile the path to file
+	 * @throws IOException IOException if the file can not be read properly
+	 * @throws SecurityException 
+	 * @throws NoSuchFieldException 
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
+	 * @throws NumberFormatException 
+	 */
+	public DetectionConfig(String pathToFile) throws IOException, NoSuchFieldException, SecurityException, NumberFormatException, IllegalArgumentException, IllegalAccessException
+	{
+		// read all lines of the configuration file
+		ArrayList<String> lines = (ArrayList<String>) FileUtils.readLines(new File(pathToFile));
+		
+		for (String line : lines)
+		{
+			// "#" are commentaries
+			if (!line.startsWith("#") && !line.isEmpty())
+			{
+				// remove unnecessary white spaces
+				line = line.trim();
+				
+				// check for mandatory value
+				boolean mandatory = false;
+				if (line.contains(";"))
+				{
+					String[] split = line.split(";");
+					if (split[1].equals("mandatory"))
+						mandatory = true;
+					line = split[0];
+				}
+				
+				// split input with =; [0] == fieldname; [1] == value
+				String[] split = line.split("=");
+				
+				// get field by name
+				Class<DetectionConfig> thisClass = (Class<DetectionConfig>) this.getClass();
+				Field current = thisClass.getField(split[0]);
+				
+				// set value (ratio needs double value, threshold needs int)
+				if (split[0].contains("Ratio"))
+					current.setDouble(this, Double.parseDouble(split[1]));
+				else
+					current.setInt(this, Integer.parseInt(split[1]));
+				
+				// set mandatory value
+				thisClass.getField(split[0] + "_Mand").setBoolean(this, mandatory);
+			}
+		}
+	}
 	
 	@Override public String toString()
 	{

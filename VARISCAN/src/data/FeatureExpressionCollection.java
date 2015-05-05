@@ -1,7 +1,10 @@
 package data;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * The Class FeatureExpressionCollection.
@@ -26,6 +29,16 @@ public class FeatureExpressionCollection
 	}
 	
 	/**
+	 * Sets the amount of features
+	 *
+	 * @param value the value
+	 */
+	public static void SetCount(int value)
+	{
+		_count = value;
+	}
+	
+	/**
 	 * Gets the amount of lines of code.
 	 *
 	 * @return the amount of features in the collection
@@ -43,6 +56,16 @@ public class FeatureExpressionCollection
 	public static int GetMeanLofc()
 	{
 		return _meanLofc;
+	}
+	
+	/**
+	 * Sets the mean value of lines of feature code
+	 *
+	 * @param value the value
+	 */
+	public static void SetMeanLofc(int value)
+	{
+		_meanLofc = value;
 	}
 	
 	/**
@@ -117,5 +140,29 @@ public class FeatureExpressionCollection
 		
 		if (_features.size() != 0)
 			_meanLofc = _meanLofc / _features.size();
+	}
+	
+	/**
+	 * Serialize the features into a xml representation
+	 *
+	 * @return A xml representation of this object.
+	 */
+	public static String SerializeFeatures()
+	{
+		XStream stream = new XStream();
+		String xmlFeatures = stream.toXML(_features);
+		
+		return xmlFeatures;
+	}
+	
+	/**
+	 * Deserializes an xml string into the collection.
+	 *
+	 * @param xml the serialized xml representation
+	 */
+	public static void DeserialzeFeatures(File xmlFile)
+	{
+		XStream stream = new XStream();
+		_features = (ArrayList<Feature>) stream.fromXML(xmlFile);
 	}
 }

@@ -83,10 +83,11 @@ public class Presenter {
 		// Sortiert nach Location und file
 		this.getLocationResults(results);
 		
-		String fileName = new SimpleDateFormat("yyyyMMddhhmm'.txt'").format(new Date()) + "_detection.txt";
+		String fileName = new SimpleDateFormat("yyyyMMddhhmm").format(new Date()) + "_detection.txt";
 		
 		try {
 			FileUtils.write(new File(fileName), this.res);
+			System.out.println("Results saved to " + fileName + " in the working directory");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -119,8 +120,7 @@ public class Presenter {
 				res += "Start\t\tEnd\t\tFeature\t\tReason\r\n";
 			}
 			
-			//res += key.start + "\t\t" + key.end + "\t\t" + key.corresponding.Name + "\t\t"+results.get(key).toString() + "\r\n";
-			res += key.start + "\t\t" + key.end + "\t\t" + key.corresponding.Name + "\t\t"+key.nestingDepth + "\r\n";
+			res += key.start + "\t\t" + key.end + "\t\t" + key.corresponding.Name + "\t\t"+results.get(key).toString() + "\r\n";
 		}
 	}
 	
