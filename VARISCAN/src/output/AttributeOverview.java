@@ -70,7 +70,7 @@ public class AttributeOverview {
 		res += "Number of feature constants: \t" + this.featureConstants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
 		res += "Number of feature locations: \t" + this.noFeatureLocs  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.amountOfFeatureLocs + " locations)\r\n";
 		res += "Lines of annotated Code: \t" + completeLoac + " (" + percentOfLoc + "% of " + FeatureExpressionCollection.GetLoc() + " LOC)\r\n";
-		res += "Lines of feature code: \t\t" + this.lofc + "\r\n";
+		res += "Lines of feature code: \t\t" + this.lofc + "\r\n\r\n";
 		
 		return res;
 	}

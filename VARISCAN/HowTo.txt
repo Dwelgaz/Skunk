@@ -14,7 +14,7 @@ HowTo:
 		--SaveIntermediate
 		
 Examples:
-	--source examplePath --SaveIntermediate
+	--source examplePath --saveIntermediate
 		The cppstats and SrcMl files will be processed and the processed data will be saved to the working directory
 	
 	--source examplePath --SaveIntermediate --config examplePath2

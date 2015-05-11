@@ -120,6 +120,8 @@ public class Detector {
 				
 				checkMethodForNumberOfFeatureLocs(meth);
 				
+				checkMethodForNumberOfFeatureOccs(meth);
+				
 				checkMethodForNumberFeatureConstants(meth);
 				
 				checkMethodForNumberNegations(meth);
@@ -153,6 +155,9 @@ public class Detector {
 		}
 	}
 
+	
+	
+	
 	
 	/**
 	 * Check the ratio between lofc and loc in a method. If the ratio exceeds the configuration value,
@@ -200,10 +205,26 @@ public class Detector {
 	private void checkMethodForNumberOfFeatureLocs(Method meth) {
 		if (this.config.Method_NumberOfFeatureLocs != -1)
 		{
-			if (meth.GetAnnotationCount() > this.config.Method_NumberOfFeatureLocs)
+			if (meth.GetFeatureLocationCount() > this.config.Method_NumberOfFeatureLocs)
 			{
 				for(FeatureLocation loc : meth.featureLocations)
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURELOCS);
+			}
+		}
+	}
+	
+	/**
+	 * Check if the number of feature occurences in the method exceeds the configuration value.
+	 * Add all feature locs to the result with the Number of FeatureLocs reason
+	 * @param meth the meth
+	 */
+	private void checkMethodForNumberOfFeatureOccs(Method meth) {
+		if (this.config.Method_NumberOfFeatureOccurences != -1)
+		{
+			if (meth.GetFeatureLocationCount() > this.config.Method_NumberOfFeatureOccurences)
+			{
+				for(FeatureLocation loc : meth.featureLocations)
+					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATUREOCC);
 			}
 		}
 	}
@@ -217,7 +238,7 @@ public class Detector {
 	private void checkMethodForNumberFeatureConstants(Method meth) {
 		if (this.config.Method_NumberOfFeatureConstants != -1)
 		{
-			if (meth.GetNumberOfFeatureConstants() > this.config.Method_NumberOfFeatureConstants)
+			if (meth.numberFeatureConstants > this.config.Method_NumberOfFeatureConstants)
 			{
 				for(FeatureLocation loc : meth.featureLocations)
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONST);
@@ -234,7 +255,7 @@ public class Detector {
 	private void checkMethodForNumberNegations(Method meth) {
 		if (this.config.Method_NegationCount != -1)
 		{
-			if (meth.GetNegationCount() > this.config.Method_NegationCount)
+			if (meth.negationCount > this.config.Method_NegationCount)
 				for(FeatureLocation loc : meth.featureLocations)
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERNEGATIONS);
 		}

@@ -95,6 +95,23 @@ public class MethodCollection
 	}
 	
 	/**
+	 * Calculate metrics for all metrics after finishing the collection
+	 */
+	public static void PostAction()
+	{
+		for (String file : methodsPerFile.keySet())
+		{
+			for (Method meth : methodsPerFile.get(file))
+			{
+				meth.SetNegationCount();
+				meth.SetNumberOfFeatureConstants();
+				meth.SetNumberOfFeatureOccurences();
+				meth.SetNestingSum();
+			}
+		}
+	}
+	
+	/**
 	 * Serialize the features into a xml representation
 	 *
 	 * @return A xml representation of this object.

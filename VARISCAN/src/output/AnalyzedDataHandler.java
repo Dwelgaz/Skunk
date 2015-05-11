@@ -8,12 +8,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.apache.commons.io.FileUtils;
 
 import data.FeatureExpressionCollection;
 import data.FeatureLocation;
+import data.Method;
 import detection.DetectionConfig;
 import detection.EnumReason;
 
@@ -31,7 +31,6 @@ public class AnalyzedDataHandler {
 		}
 	};
 	
-	
 	/** A comparator that compares the filepath of feature location*/
 	public final static Comparator<FeatureLocation> FEATURELOCATION_FILEPATH_COMPARATOR = new Comparator<FeatureLocation>()
 	{
@@ -40,7 +39,6 @@ public class AnalyzedDataHandler {
 			return f1.filePath.compareTo(f2.filePath);
 		}
 	};
-	
 	
 	/** A comparator that compares startposition of feature locations. */
 	public final static Comparator<FeatureLocation> FEATURELOCATION_START_COMPARATOR = new Comparator<FeatureLocation>()
@@ -55,6 +53,28 @@ public class AnalyzedDataHandler {
 				return 0;
 		}
 	};
+	
+	/** A comparator that compares startposition of feature locations methods. */
+	public final static Comparator<FeatureLocation>  FEATURELOCATION_METHOD_COMPARATOR = new Comparator<FeatureLocation>()
+	{
+		@Override public int compare(FeatureLocation f1, FeatureLocation f2)
+		{
+			if (f1.inMethod == null)
+				return -1;
+			if (f2.inMethod == null)
+				return 1;
+			
+			if (f1.inMethod.start > f2.inMethod.start)
+				return 1;
+			else if (f1.inMethod.start < f2.inMethod.start)
+				return -1;
+			else
+				return 0;
+		}
+	};
+	
+	
+	
 	
 	/**
 	 * 	 Instantiates a new presenter.
@@ -77,11 +97,13 @@ public class AnalyzedDataHandler {
 		// get overview per attribute
 		this.getAttributeOverviewResults(results);
 		
-		// get the results sorted per feature
-		this.getResultsPerFeature(results);
-		
 		// Sortiert nach Location und file
-		this.getLocationResults(results);
+		this.getFileSortedRestults(results);
+		
+		this.getMethodSortedResults(results);
+		
+		// get the results sorted per feature
+		this.getFeatureSortedResults(results);
 		
 		String fileName = new SimpleDateFormat("yyyyMMddhhmm").format(new Date()) + "_detection.txt";
 		
@@ -135,13 +157,13 @@ public class AnalyzedDataHandler {
 	 * @param results the results
 	 * @return the location results
 	 */
-	private void getLocationResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private void getFileSortedRestults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
 	{
 		// sort the keys after featurename, filepath and start
 		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
 		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
 		
-		res += "\r\n\r\n>>> Location Results:\r\n";
+		res += "\r\n\r\n>>> File-Sorted Results:\r\n";
 		
 		String currentPath = "";
 		
@@ -165,13 +187,13 @@ public class AnalyzedDataHandler {
 	 * @param results the detection results
 	 * @return the results per feature
 	 */
-	private void getResultsPerFeature(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private void getFeatureSortedResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
 	{
 		// sort the keys after featurename, filepath and start
 		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
 		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FEATURENAME_COMPARATOR, FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
 		
-		res += ">>> Feature Results";
+		res += ">>> Feature-Sorted Results";
 		
 		String currentName = "";
 		String currentPath = "";
@@ -201,11 +223,68 @@ public class AnalyzedDataHandler {
 	}
 	
 	/**
+	 * Sorts the results per Method and returns the smell metric of each method
+	 *
+	 * @param results the detection results
+	 * @return the results per feature
+	 */
+	private void getMethodSortedResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	{
+		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
+		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_METHOD_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
+		
+		res += ">>> Method-Sorted Results";
+		
+		Method currentMethod = null;
+		String currentPath = "";
+		
+		// print feature locations with reason per File and Method
+		for (FeatureLocation key : sortedKeys)
+		{
+			// don't display feature that are not in a method
+			if (key.inMethod == null)
+				continue;
+			
+			// flag to indicate that the smell value was already displayed
+			boolean presented = false;
+			
+			if (!key.filePath.equals(currentPath))
+			{
+				this.GetMethodSmellValue(currentMethod);
+				presented = true;
+				
+				currentPath = key.filePath;
+				res += "\r\n\r\nFile: " + currentPath;
+			}
+			
+			if (!key.inMethod.equals(currentMethod))
+			{
+				if (!presented)
+				{
+					this.GetMethodSmellValue(currentMethod);
+					presented = false;
+				}
+				
+				currentMethod = key.inMethod;
+				res += "\r\nMethod: " + currentMethod.functionSignatureXml + "\r\n";
+				res += "Start\t\tEnd\t\tReason\r\n";
+			}
+				
+				res += key.start + "\t\t" + key.end + "\t\t" + results.get(key).toString() + "\r\n";
+				// wFeatOcc* ((Loac/Loc) *NoFeatOcc) + wFeatLoc * (NoFeatLoc/NoFeatOcc) + wNestingSum * (NestingSum/NoFeatOcc)
+				
+			if (sortedKeys.indexOf(key) == sortedKeys.size() - 1)
+				this.GetMethodSmellValue(currentMethod);
+		}
+	}
+	
+	
+	/**
 	 * Get the results of the complete set.
 	 *
 	 * @param results the result hasmap from the detection process
 	 */
-	private void getOverviewResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results) 
+ 	private void getOverviewResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results) 
 	{
 		// amount of feature constants
 		ArrayList<String> constants = new ArrayList<String>();
@@ -259,6 +338,45 @@ public class AnalyzedDataHandler {
 		res += "Lines of annotated Code: \t" + completeLoac + " (" + percentOfLoc + "% of " + FeatureExpressionCollection.GetLoc() + " LOC)\r\n";
 		res += "Lines of feature code: \t\t" + completeLofc + "\r\n";
 		res += "Mean LOFC per feature: \t\t" + FeatureExpressionCollection.GetMeanLofc() + "\r\n\r\n\r\n";
+	}
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	/**
+	 * Gets the method smell value and adds it to the result
+	 *
+	 * @param currentMethod the current method
+	 */
+	private void GetMethodSmellValue(Method currentMethod) {
+		// show method smell value
+		if (currentMethod != null)
+		{
+			float featOccSmell = 0;
+			float featLocSmell = 0;
+			float nestSumSmell = 0;
+			
+			if (conf.Method_NumberOfFeatureOccurences != -1)
+			{
+				featOccSmell = conf.Method_NumberOfFeatureOccurences_Weight * (((float) currentMethod.GetLinesOfAnnotatedCode() / (float) currentMethod.loc) * (float) currentMethod.numberFeatureOccurences);
+				res += "Loac/Loc * #FeatOccurcens = " + featOccSmell + "\r\n";
+			}
+			if (conf.Method_NumberOfFeatureLocs != -1)
+			{
+				featLocSmell = conf.Method_NumberOfFeatureLocs_Weight * ((float) currentMethod.GetFeatureLocationCount() / (float) currentMethod.numberFeatureOccurences);
+				res += "#FeatLocations/#FeatOccurences = " + featLocSmell + "\r\n";
+			}
+			if (conf.Method_NestingSum != -1)
+			{
+				nestSumSmell = conf.Method_NestingSum_Weight * ((float) currentMethod.nestingSum / (float) currentMethod.numberFeatureOccurences);
+				res += "Loac/Loc * #FeatOccurcens = " + nestSumSmell + "\r\n";
+			}
+			
+			float sum = (featOccSmell + featLocSmell + nestSumSmell);
+			
+			res += "Sum = " + sum + "\r\n\r\n"; 
+		}
 	}
 }
 

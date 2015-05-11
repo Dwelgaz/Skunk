@@ -59,6 +59,9 @@ public class Program {
 			SrcMlFolderReader mlReader = new SrcMlFolderReader();
 			mlReader.ProcessFiles();
 			
+			// do post actions
+			MethodCollection.PostAction();
+			
 			// save processed data
 			if (saveIntermediate)
 				ProcessedDataHandler.SaveProcessedData();

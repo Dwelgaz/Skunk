@@ -2,6 +2,7 @@
 ## A ";mandatory" behind a value means, that the corresponding attribute must be a part of the result for each feature location
 ## A location that does not include the corresponding attribute, won't be part of the result.
 
+## A ";X" (where X is a number e.g, 2.0) is a weight value for smell value calculation 
 
 #### Feature-based Ratios/Thresholds ####
 
@@ -11,7 +12,7 @@
 
 ## A ratio that defines the difference between the LOFC of a feature to the project LOC.
 ## Example: ProjectLocRatio=0.5; LOC=1000 --> All features with LOFC >= 500
-Feature_ProjectLocRatio=0.15;mandatory
+#Feature_ProjectLocRatio=0.15;mandatory
 
 ## A ratio that defines the amount of feature locations to the total amount of feature locations.
 ## Example: NoflToSumRatio=0.1; Total NOFL=500 --> All features with more than 50 feature locations
@@ -19,7 +20,7 @@ Feature_ProjectLocRatio=0.15;mandatory
 
 ## A threshold that defines in how many compilation units, a feature has to have at least one feature location.
 ## Example: NumberOfCompilUnits=5; Features with 5 different feature locations if 5 compilation units
- Feature_NumberOfCompilUnits=2
+# Feature_NumberOfCompilUnits=2
 
 
 #### Method-based Ratios/Thresholds ####
@@ -34,7 +35,7 @@ Feature_ProjectLocRatio=0.15;mandatory
 
 ## A threshold that defines how much feature locations must be within a method
 ## Example: NumberOfFeatureLocs=5 --> All feature locations within a method that combined are more than 5 different feature locations.
-# Method_NumberOfFeatureLocs=-1
+Method_NumberOfFeatureLocs=1;mandatory
 
 ## A threshold that defines how much feature constants must be within a method
 ## Example: NumberOfFeatureConstants=5 --> All feature locations within a method that combined are more than 5 different feature constants.
@@ -42,11 +43,15 @@ Feature_ProjectLocRatio=0.15;mandatory
 
 ## A threshold that defines how much nesting must exist inside a method. Each nesting is counted per feature location.
 ## Example:
-# Method_NestingSum=-1
+Method_NestingSum=1;mandatory
 
 ## A threshold that defines how deep a nesting must go.
 ## Example: NestingDepthMin=2 --> All feature locations within a method that build a nesting bundle with at least a nesting depth of 2
-# Method_NestingDepthMin=-1
+#Method_NestingDepthMin=1
+
+## A threshold that defines how much feature occurnces must be within the method
+## Example: NumberOfFeatureOccurences=3 --> A method with 3 lines of code with a ifdef annonation
+Method_NumberOfFeatureOccurences=1;mandatory
 
 ## A threshold that defines how much negations must exist in a method
 ## Example:

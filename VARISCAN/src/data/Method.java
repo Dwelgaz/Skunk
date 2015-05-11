@@ -36,6 +36,14 @@ public class Method
 	/** The feature locations. */
 	public List<FeatureLocation> featureLocations;
 	
+	/** The number feature constants in the method. */
+	public int numberFeatureConstants;
+	
+	/** The number feature occurences.*/
+	public int numberFeatureOccurences;
+	
+	/** The number of negations in the method */
+	public int negationCount;
 	/**
 	 * Method.
 	 *
@@ -59,6 +67,10 @@ public class Method
 		
 		this.featureLocations = new LinkedList<FeatureLocation>();
 		this.loac = new ArrayList<Integer>();
+		
+		this.numberFeatureConstants = 0;
+		this.numberFeatureOccurences = 0;
+		this.negationCount = 0;
 	}	
 	
 	/**
@@ -78,8 +90,6 @@ public class Method
 			if (loc.nestingDepth > this.nestingDepthMax)
 				this.nestingDepthMax = loc.nestingDepth;
 			
-			if (loc.nestingDepth > 0)
-				this.nestingSum++;
 				
 			// calculate lines of feature code (if the feature is longer than the method, use the method end)
 			if (loc.end > this.end)
@@ -104,7 +114,7 @@ public class Method
 	 *
 	 * @return the int
 	 */
-	public int GetAnnotationCount()
+	public int GetFeatureLocationCount()
 	{
 		return this.featureLocations.size();
 	}
@@ -124,7 +134,7 @@ public class Method
 	 *
 	 * @return the int
 	 */
-	public int GetNumberOfFeatureConstants()
+	public void SetNumberOfFeatureConstants()
 	{
 		ArrayList<String> constants = new ArrayList<String>();
 		
@@ -134,15 +144,36 @@ public class Method
 				constants.add(loc.corresponding.Name);
 		}
 		
-		return constants.size();
+		this.numberFeatureConstants = constants.size();
 	}
+	
+	
+	/**
+	 * Gets the number of feature occurences. A feature occurence is a complete set of feature locations on one line.
+	 *
+	 * @return the number of feature occurences in the method
+	 */
+	public void SetNumberOfFeatureOccurences()
+	{
+		ArrayList<Integer> noOcc = new ArrayList<Integer>();
+		
+		// remember the starting position of each feature location, but do not add it twice
+		for (FeatureLocation loc : this.featureLocations)
+		{
+			if (!noOcc.contains(loc.start))
+				noOcc.add(loc.start);
+		}
+		
+		this.numberFeatureOccurences = noOcc.size();
+	}
+	
 
 	/**
 	 * Cet the amount of negated annotations
 	 *
 	 * @return the amount of negated annotations
 	 */
-	public int GetNegationCount()
+	public void SetNegationCount()
 	{
 		int result = 0;
 		
@@ -152,6 +183,29 @@ public class Method
 				result++;
 		}
 		
-		return result;
+		this.negationCount = result;
+	}
+	
+	/**
+	 * Sets the nesting sum.
+	 */
+	public void SetNestingSum()
+	{	
+		// minNesting defines the lowest nesting depth of the method (nesting depths are file based)
+		int res = 0;
+		int minNesting = 5000;
+		
+		// add each nesting to the nesting sum
+		for (FeatureLocation loc : this.featureLocations)
+		{
+			res += loc.nestingDepth;
+			if (loc.nestingDepth < minNesting)
+				minNesting = loc.nestingDepth;
+		}
+		
+		// substract the complete minNesting depth (for each added location)
+		res -= this.featureLocations.size() * minNesting;
+		
+		this.nestingSum = res;
 	}
 }

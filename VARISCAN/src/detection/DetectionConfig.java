@@ -12,46 +12,62 @@ public class DetectionConfig {
 	/** A ratio that defines the difference of a feature to the mean lofc of other features (1 = returns all features that are as big as the mean value and bigger)*/
 	public double Feature_MeanLofcRatio = -1000;
 	public boolean Feature_MeanLofcRatio_Mand = false;
+	public float Feature_MeanLofcRatio_Weight = 1;
 	
 	/** A ratio that defines the ratio between a feature lofc and the project loc (1 = 100% of the code)*/
 	public double Feature_ProjectLocRatio = -1000;
 	public boolean Feature_ProjectLocRatio_Mand = false;
+	public float Feature_ProjectLocRatio_Weight = 1;
 	
 	/** A ratio that defines the ratio between the amount of feature locations for a feature to the amount of feature locations in the project */
 	public double Feature_NoflToSumRatio = -1000;
 	public boolean Feature_NoflToSumRatio_Mand = false;
+	public float Feature_NoflToSumRatio_Weight = 1;
 	
 	/** The amount of compilation units (files) the feature is in */
 	public double Feature_NumberOfCompilUnits = -1;
 	public boolean Feature_NumberOfCompilUnits_Mand = false;
+	public float Feature_NumberOfCompilUnits_Weight = 1;
 	
 	/** A ratio that defines the percentage of lofc to loc (of a method) (1 = 100% of the code*/
 	public double Method_LofcToLocRatio = -1000;
 	public boolean Method_LofcToLocRatio_Mand = false;
+	public float Method_LofcToLocRatio_Weight = 1;
 	
 	/** A ratio that defines the percentage of loac to loc (of a method) (1 = 100% of the code) */
 	public double Method_LoacToLocRatio = -1000;
 	public boolean Method_LoacToLocRatio_Mand = false;
+	public float Method_LoacToLocRatio_Weight = -1;
 	
 	/** The amount of feature locations a method should have minimally*/
 	public int Method_NumberOfFeatureLocs = -1;
 	public boolean Method_NumberOfFeatureLocs_Mand = false;
+	public float Method_NumberOfFeatureLocs_Weight = 1;
 	
 	/** The amount of feature constants a method should have minimally */
 	public int Method_NumberOfFeatureConstants = -1;
 	public boolean Method_NumberOfFeatureConstants_Mand = false;
+	public float Method_NumberOfFeatureConstants_Weight = 1;
 	
 	/** The minimal nesting depth of a method. (summarized nestings) */
 	public int Method_NestingSum = -1;
 	public boolean Method_NestingSum_Mand = false;
+	public float Method_NestingSum_Weight = 1;
 	
 	/** The minimal nesting depth of a method.*/
 	public int Method_NestingDepthMin = -1;
 	public boolean Method_NestingDepthMin_Mand = false;
+	public float Method_NestingDepthMin_Weight = 1;
 	
 	/** The minimal negation count of a method */
 	public int Method_NegationCount = -1;
 	public boolean Method_NegationCount_Mand = false;
+	public float Method_NegationCount_Weight = 1;
+	
+	/** The minimal amount of featureoccurences. */
+	public int Method_NumberOfFeatureOccurences = -1;
+	public boolean Method_NumberOfFeatureOccurences_Mand = false;
+	public float Method_NumberOfFeatureOccurences_Weight = 1;
 	
 	/** Defines how much values have been set. */
 	public int SetValues = 0;
@@ -83,11 +99,21 @@ public class DetectionConfig {
 				
 				// check for mandatory value
 				boolean mandatory = false;
+				float weight = 1;
 				if (line.contains(";"))
 				{
 					String[] split = line.split(";");
+					
 					if (split[1].equals("mandatory"))
 						mandatory = true;
+					else if (split[1].matches("(\\d)+(\\.)(\\d)+))"))
+						weight = Float.parseFloat(split[1].trim());
+					
+					if (split.length == 3 && split[2].equals("mandatory"))
+						mandatory = true;
+					else if(split.length == 3 && split[2].matches("(\\d)+(\\.)(\\d)+))"))
+						weight = Float.parseFloat(split[2].trim());
+						
 					line = split[0];
 				}
 				
@@ -100,12 +126,15 @@ public class DetectionConfig {
 				
 				// set value (ratio needs double value, threshold needs int)
 				if (split[0].contains("Ratio"))
-					current.setDouble(this, Double.parseDouble(split[1]));
+					current.setDouble(this, Double.parseDouble(split[1].trim()));
 				else
-					current.setInt(this, Integer.parseInt(split[1]));
+					current.setInt(this, Integer.parseInt(split[1].trim()));
 				
 				// set mandatory value
 				thisClass.getField(split[0] + "_Mand").setBoolean(this, mandatory);
+				
+				// set weight value
+				thisClass.getField(split[0] + "_Weight").setFloat(this, weight);
 			}
 		}
 	}
@@ -135,6 +164,8 @@ public class DetectionConfig {
 			res += "\r\nAmount - Number of featurelocations: " + this.Method_NumberOfFeatureLocs + "; mandatory=" + this.Method_NumberOfFeatureLocs_Mand;
 		if (this.Method_NumberOfFeatureConstants != -1)
 			res += "\r\nAmount - Number of featureconstants: " + this.Method_NumberOfFeatureConstants + "; mandatory=" + this.Method_NumberOfFeatureConstants_Mand;
+		if (this.Method_NumberOfFeatureOccurences != -1)
+			res += "\r\nAmount - Number of feature occurences: " + this.Method_NumberOfFeatureOccurences + "; mandatory=" + this.Method_NumberOfFeatureOccurences_Mand;
 		if (this.Method_NestingSum != -1)
 			res += "\r\nAmount - Number of nestings: " + this.Method_NestingSum + "; mandatory=" + this.Method_NestingSum_Mand;
 		if (this.Method_NestingDepthMin != -1)
@@ -145,15 +176,21 @@ public class DetectionConfig {
 		return res;
 	}
 	
+	// TODO LOAC und LOC --> Whitespace und comments rausziehen mit verlgiehc der sourceml file
+	// TODO Umsetzung der Metrik für AnnotationBundle pro Bundle siehe bild mit wichtung --> + Ranking
+	// --> Ausgabe ändern : Feature Ausgabe mit Metriken pro feature, Methodausgabe sortiert mit Metriken, Fileausgabe
 	
+	// TODO Output auch als Excel/CSV
 	
-	// TODO featureoccurences Anzahl der Featureexpression (siehe Loac)
-	// TODO Median für lofc
 	// TODO Annotation File --> selbe wie bundle, nur auf file ebene
 	// TODO Speculative Generalty
-	// TODO Logging und Zeitverbrauch pro größerer Operation
-	// TODO In Output: Overview pro Attribut
 	// TODO In Output für jede Reason die entsprechende Zahl noch anzeigen
+	
+	// TODO CSM Template für definierte Code Smells
+	
+	
+	
+	// TODO Median für lofc
+	// TODO Logging und Zeitverbrauch pro größerer Operation
 	// TODO DetectionResult vor Presentation abspeichern möglich machen (z.b. eclipse einbindung)
-	//
 }
