@@ -19,7 +19,6 @@ import detection.EnumReason;
 
 public class AnalyzedDataHandler {
 
-	private String res = ">>> Detection results\r\n";
 	private DetectionConfig conf = null;
 	
 	/** A comparator that compares featurenames of feature locations. */
@@ -87,29 +86,31 @@ public class AnalyzedDataHandler {
 	}
 	
 	public void saveResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
-	{	
-		// save config in result
-		this.res += "\r\n\r\n" + conf.toString();
-		
+	{			
 		// get the results of the complete detection process and the whole project
-		this.getOverviewResults(results);
+		String overview = this.getOverviewResults(results);
 		
 		// get overview per attribute
-		this.getAttributeOverviewResults(results);
+		String attributes = this.getAttributeOverviewResults(results);
 		
 		// Sortiert nach Location und file
-		this.getFileSortedRestults(results);
+		String files = this.getFileSortedRestults(results);
 		
-		this.getMethodSortedResults(results);
+		String methods = this.getMethodSortedResults(results);
 		
 		// get the results sorted per feature
-		this.getFeatureSortedResults(results);
+		String features = this.getFeatureSortedResults(results);
 		
-		String fileName = new SimpleDateFormat("yyyyMMddhhmm").format(new Date()) + "_detection.txt";
+		String fileName = new SimpleDateFormat("yyyyMMddhhmm").format(new Date()) + "_detection_";
 		
-		try {
-			FileUtils.write(new File(fileName), this.res);
-			System.out.println("Results saved to " + fileName + " in the working directory");
+		try 
+		{
+			FileUtils.write(new File(fileName + "overview.txt"), overview);
+			FileUtils.write(new File(fileName + "attributes.txt"), attributes);
+			FileUtils.write(new File(fileName + "files.txt"), files);
+			FileUtils.write(new File(fileName + "methods.txt"), methods);
+			FileUtils.write(new File(fileName + "features.txt"), features);
+			System.out.println("Result files saved to the working directory!");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -121,8 +122,10 @@ public class AnalyzedDataHandler {
 	 * @param results the results
 	 * @return the attribute overview results
 	 */
-	private void getAttributeOverviewResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private String getAttributeOverviewResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
 	{
+		String res = conf.toString() +"\r\n\r\n\r\n\r\n\r\n";
+
 		ArrayList<AttributeOverview> attributes = new ArrayList<AttributeOverview>();
 		
 		for (FeatureLocation key : results.keySet())
@@ -149,6 +152,8 @@ public class AnalyzedDataHandler {
 		// add attribute overview to output
 		for (AttributeOverview attr : attributes)
 			res += attr.toString();
+		
+		return res;
 	}
 	
 	/**
@@ -157,13 +162,15 @@ public class AnalyzedDataHandler {
 	 * @param results the results
 	 * @return the location results
 	 */
-	private void getFileSortedRestults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private String getFileSortedRestults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
 	{
+		String res = conf.toString() + "\r\n\r\n\r\n\r\n\r\n\r\n";
+		
 		// sort the keys after featurename, filepath and start
 		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
 		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
 		
-		res += "\r\n\r\n>>> File-Sorted Results:\r\n";
+		res += ">>> File-Sorted Results:\r\n";
 		
 		String currentPath = "";
 		
@@ -173,12 +180,14 @@ public class AnalyzedDataHandler {
 			if (!key.filePath.equals(currentPath))
 			{
 				currentPath = key.filePath;
-				res += "[File: " + currentPath + "]\r\n";
+				res += "\r\n\r\n\r\n[File: " + currentPath + "]\r\n";
 				res += "Start\t\tEnd\t\tFeature\t\tReason\r\n";
 			}
 			
 			res += key.start + "\t\t" + key.end + "\t\t" + key.corresponding.Name + "\t\t"+results.get(key).toString() + "\r\n";
 		}
+		
+		return res;
 	}
 	
 	/**
@@ -187,8 +196,10 @@ public class AnalyzedDataHandler {
 	 * @param results the detection results
 	 * @return the results per feature
 	 */
-	private void getFeatureSortedResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private String getFeatureSortedResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
 	{
+		String res = conf.toString() + "\r\n\r\n\r\n\r\n\r\n";
+		
 		// sort the keys after featurename, filepath and start
 		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
 		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FEATURENAME_COMPARATOR, FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
@@ -204,7 +215,7 @@ public class AnalyzedDataHandler {
 			if (!key.corresponding.Name.equals(currentName))
 			{
 				currentName = key.corresponding.Name;
-				res += "\r\n[Feature: " + currentName + "]\r\n"; 
+				res += "\r\n\r\n\r\n[Feature: " + currentName + "]\r\n"; 
 				
 				// reset filepath
 				currentPath = "";
@@ -220,6 +231,8 @@ public class AnalyzedDataHandler {
 			
 			res += key.start + "\t\t" + key.end + "\t\t" + results.get(key).toString() + "\r\n";
 		}
+		
+		return res;
 	}
 	
 	/**
@@ -228,8 +241,9 @@ public class AnalyzedDataHandler {
 	 * @param results the detection results
 	 * @return the results per feature
 	 */
-	private void getMethodSortedResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private String getMethodSortedResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
 	{
+		String res = conf.toString() + "\r\n\r\n\r\n\r\n\r\n";
 		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
 		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_METHOD_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
 		
@@ -250,7 +264,7 @@ public class AnalyzedDataHandler {
 			
 			if (!key.filePath.equals(currentPath))
 			{
-				this.GetMethodSmellValue(currentMethod);
+				res += this.GetMethodSmellValue(currentMethod);
 				presented = true;
 				
 				currentPath = key.filePath;
@@ -261,7 +275,7 @@ public class AnalyzedDataHandler {
 			{
 				if (!presented)
 				{
-					this.GetMethodSmellValue(currentMethod);
+					res += this.GetMethodSmellValue(currentMethod);
 					presented = false;
 				}
 				
@@ -274,8 +288,10 @@ public class AnalyzedDataHandler {
 				// wFeatOcc* ((Loac/Loc) *NoFeatOcc) + wFeatLoc * (NoFeatLoc/NoFeatOcc) + wNestingSum * (NestingSum/NoFeatOcc)
 				
 			if (sortedKeys.indexOf(key) == sortedKeys.size() - 1)
-				this.GetMethodSmellValue(currentMethod);
+				res += this.GetMethodSmellValue(currentMethod);
 		}
+		
+		return res;
 	}
 	
 	
@@ -284,8 +300,9 @@ public class AnalyzedDataHandler {
 	 *
 	 * @param results the result hasmap from the detection process
 	 */
- 	private void getOverviewResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results) 
+ 	private String getOverviewResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results) 
 	{
+ 		String res = conf.toString();
 		// amount of feature constants
 		ArrayList<String> constants = new ArrayList<String>();
 		float percentOfConstants = 0;
@@ -338,6 +355,8 @@ public class AnalyzedDataHandler {
 		res += "Lines of annotated Code: \t" + completeLoac + " (" + percentOfLoc + "% of " + FeatureExpressionCollection.GetLoc() + " LOC)\r\n";
 		res += "Lines of feature code: \t\t" + completeLofc + "\r\n";
 		res += "Mean LOFC per feature: \t\t" + FeatureExpressionCollection.GetMeanLofc() + "\r\n\r\n\r\n";
+		
+		return res;
 	}
  	
  	
@@ -349,7 +368,10 @@ public class AnalyzedDataHandler {
 	 *
 	 * @param currentMethod the current method
 	 */
-	private void GetMethodSmellValue(Method currentMethod) {
+	private String GetMethodSmellValue(Method currentMethod) 
+	{
+		String res = "";
+		
 		// show method smell value
 		if (currentMethod != null)
 		{
@@ -377,6 +399,8 @@ public class AnalyzedDataHandler {
 			
 			res += "Sum = " + sum + "\r\n\r\n"; 
 		}
+		
+		return res;
 	}
 }
 
