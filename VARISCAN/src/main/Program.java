@@ -11,8 +11,10 @@ import java.util.List;
 
 import output.AnalyzedDataHandler;
 import output.ProcessedDataHandler;
+import data.Feature;
 import data.FeatureExpressionCollection;
 import data.FeatureLocation;
+import data.FileCollection;
 import data.MethodCollection;
 import detection.DetectionConfig;
 import detection.Detector;
@@ -39,6 +41,7 @@ public class Program {
 		// Initialize Components
 		FeatureExpressionCollection.Initialize();
 		MethodCollection.Initialize();
+		FileCollection.Initialize();
 		
 		// gather input
 		boolean run = analyzeInput(args);
@@ -61,6 +64,7 @@ public class Program {
 			
 			// do post actions
 			MethodCollection.PostAction();
+			FileCollection.PostAction();			
 			
 			// save processed data
 			if (saveIntermediate)

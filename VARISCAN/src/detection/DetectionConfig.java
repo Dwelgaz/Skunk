@@ -176,10 +176,6 @@ public class DetectionConfig {
 		return res;
 	}
 	
-	// TODO LOAC und LOC --> Whitespace und comments rausziehen mit verlgiehc der sourceml file
-	// TODO Umsetzung der Metrik für AnnotationBundle pro Bundle siehe bild mit wichtung --> + Ranking
-	// --> Ausgabe ändern : Feature Ausgabe mit Metriken pro feature, Methodausgabe sortiert mit Metriken, Fileausgabe
-	
 	// TODO Output auch als Excel/CSV
 	
 	// TODO Annotation File --> selbe wie bundle, nur auf file ebene

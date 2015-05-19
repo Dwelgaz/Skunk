@@ -1,22 +1,17 @@
 package data;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * The Class Method.
- */
-public class Method 
+import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Document;
+
+public class File 
 {
-	/** The function signature. */
-	public String functionSignatureXml;
-	
-	/** The start position. */
-	public int start;
-	
-	/** The end position. */
-	public int end;
+	/** the path to the file */
+	public String filePath;
 	
 	/** The lines of code of the method. */
 	public int loc;
@@ -36,6 +31,9 @@ public class Method
 	/** The feature locations. */
 	public List<FeatureLocation> featureLocations;
 	
+	/** The methods. */
+	public List<Method> methods;
+	
 	/** The number feature constants in the method. */
 	public int numberFeatureConstants;
 	
@@ -45,37 +43,78 @@ public class Method
 	/** The number of negations in the method */
 	public int negationCount;
 	
-	/** The file path. */
-	public String filePath;
+	/** The empty lines (whitespace or comments. */
+	public List<Integer> emptyLines;
+	
 	
 	/**
-	 * Method.
+	 * Instantiates a new file.
 	 *
-	 * @param signature the signature
-	 * @param start the start position of the method
-	 * @param loc the lines of code
+	 * @param filePath the file path
+	 * @param doc the doc
 	 */
-	public Method(String signature, int start, int loc)
+	public File(String filePath)
 	{
-		this.functionSignatureXml = signature;
-		this.start = start;
-		this.loc = loc;
+		this.filePath = filePath;
+		
+		this.methods = new ArrayList<Method>();
+		
+		this.loc = 0;
+		this.lofc = 0;
 		this.nestingSum = 0;
 		this.nestingDepthMax = 0;
-		
-		// do not count start line while calculating the end
-		this.end = start + loc - 1;
-		
-		// initialize loc
-		this.lofc = 0;
-		
-		this.featureLocations = new LinkedList<FeatureLocation>();
-		this.loac = new ArrayList<Integer>();
-		
 		this.numberFeatureConstants = 0;
 		this.numberFeatureOccurences = 0;
 		this.negationCount = 0;
-	}	
+		
+		this.featureLocations = new LinkedList<FeatureLocation>();
+		this.loac = new ArrayList<Integer>();
+		this.emptyLines = new ArrayList<Integer>();
+		
+		this.getEmptyLines(filePath);
+	}
+	
+	/**
+	 * Gets the empty lines and assign loc
+	 *
+	 * @return the empty lines
+	 */
+	private void getEmptyLines(String filePath)
+	{
+		try {
+			int index = 0;
+			boolean multiline = false;
+			for (String line : FileUtils.readLines(FileUtils.getFile(filePath)))
+			{
+				if (multiline)
+				{
+					this.emptyLines.add(index);
+					if (line.contains("*/"))
+						multiline = false;
+				}
+				else if (line.isEmpty())
+					this.emptyLines.add(index);
+				
+				//single line comment
+				else if (line.trim().startsWith("//"))
+					this.emptyLines.add(index);
+				
+				//multiline comment
+				else if (line.trim().startsWith("/*"))
+				{
+					this.emptyLines.add(index);
+					
+					if (!line.contains("*/"))
+						multiline = true;
+				}
+				
+				index++;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
 	
 	/**
 	 * Adds the feature location if it is not already added.
@@ -88,44 +127,40 @@ public class Method
 		{
 			// connect feature to the method
 			this.featureLocations.add(loc);
-			loc.inMethod = this;
 			
 			// assign nesting depth values
 			if (loc.nestingDepth > this.nestingDepthMax)
 				this.nestingDepthMax = loc.nestingDepth;
 			
-				
 			// calculate lines of feature code (if the feature is longer than the method, use the method end)
-			if (loc.end > this.end)
-				this.lofc += this.end - loc.start + 1;
-			else
-				this.lofc += loc.end - loc.start + 1;
-			
-			data.File file = FileCollection.GetFile((loc.filePath));
-			for (int current : file.emptyLines)
-			{
-				if (loc.end > this.end)
-				{
-					if (current > loc.start && current < this.end)
-						this.lofc--;
-				}
-				else
-					if (current > loc.start && current < loc.end)
-						this.lofc--;		
-			}
+			this.lofc += loc.end - loc.start + 1;
+			for (int current : this.emptyLines)
+				if (current > loc.start && current < loc.end)
+					this.lofc--;
 			
 			// add lines of visibile annotated code (amount of loc that is inside annotations) until end of feature location or end of method
 			for (int current = loc.start; current <= loc.end; current++)
 			{
-				if (!(this.loac.contains(current)) && !FileCollection.GetFile(this.filePath).emptyLines.contains(current))
+				if (!(this.loac.contains(current)) && !(this.emptyLines.contains(current)))
 					this.loac.add(current);
-				
-				if (current == this.end)
-					break;
 			}
 		}
 	}
-
+	
+	/**
+	 * Connects a method to the file
+	 *
+	 * @param meth the meth
+	 */
+	public void AddMethod(Method meth)
+	{
+		if (!this.methods.contains(meth))
+		{
+			this.methods.add(meth);
+			meth.filePath = this.filePath;
+		}
+	}
+	
 	/**
 	 * Gets the annotation count.
 	 *
@@ -163,7 +198,6 @@ public class Method
 		
 		this.numberFeatureConstants = constants.size();
 	}
-	
 	
 	/**
 	 * Gets the number of feature occurences. A feature occurence is a complete set of feature locations on one line.
@@ -210,30 +244,11 @@ public class Method
 	{	
 		// minNesting defines the lowest nesting depth of the method (nesting depths are file based)
 		int res = 0;
-		int minNesting = 5000;
 		
 		// add each nesting to the nesting sum
 		for (FeatureLocation loc : this.featureLocations)
-		{
 			res += loc.nestingDepth;
-			if (loc.nestingDepth < minNesting)
-				minNesting = loc.nestingDepth;
-		}
-		
-		// substract the complete minNesting depth (for each added location)
-		res -= this.featureLocations.size() * minNesting;
 		
 		this.nestingSum = res;
-	}
-	
-	public void SetLoc()
-	{
-		data.File file = FileCollection.GetFile(this.filePath);
-		
-		for (int empty : file.emptyLines)
-		{
-			if (empty >= this.start && empty <= this.end)
-				this.loc--;
-		}
 	}
 }

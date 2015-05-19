@@ -10,21 +10,18 @@ import java.nio.file.Paths;
 import data.Feature;
 import data.FeatureExpressionCollection;
 import data.FeatureLocation;
+import data.FileCollection;
 import data.MethodCollection;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
-// TODO Latently USed Parameters: in den methodlocatiosn, gucken ob in der parameterliste features sind 
-
 /**
-Speculative Generality:
-- Alle calls auf methoden suchen, die vom namen her in der source sind
-- Versuch diese einer Methode zuzuweisen (exakt!), sofern möglich
-- bei den übrigen schauen, ob es parameter dort gibt, die nicht zugewiesen sind
-*/
-public class SrcMlFolderReader {
+ * The Class SrcMlFolderReader.
+ */
+public class SrcMlFolderReader 
+{
 	
 	/**
 	 * Instantiates a new srcmlfolderreader.
@@ -66,6 +63,10 @@ public class SrcMlFolderReader {
 	        Document doc = PositionalXmlReader.readXML(fileInput);
 	        fileInput.close();
 		
+	        // Assign to file
+	        data.File file = FileCollection.GetOrAddFile(loc.filePath);
+	        file.AddFeatureLocation(loc);
+	        
 			// go through each directive and find the directive of the specific location by using the start position
 			NodeList directives = doc.getElementsByTagName("cpp:directive");
 			for (int i = 0; i < directives.getLength(); i++)
@@ -152,14 +153,22 @@ public class SrcMlFolderReader {
 			
 			// get or create method
 			data.Method method = MethodCollection.GetMethod(loc.filePath, functionSignature);
+			
 			if (method == null)
 			{
 				method = new data.Method(functionSignature, Integer.parseInt((String) parent.getUserData("lineNumber")), this.countLines(parent.getTextContent()));
 				MethodCollection.AddMethodToFile(loc.filePath, method);
 			}
 			
+			// add method to file
+			data.File file = FileCollection.GetFile(loc.filePath);
+			if (file != null)
+				file.AddMethod(method);
+			
 			// add location to the method
 			method.AddFeatureLocation(loc);
+			
+
 		}
 		
 	}

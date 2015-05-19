@@ -10,6 +10,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import data.FeatureExpressionCollection;
+import data.FileCollection;
 
 /**
  * The Class CppStatsFolderReader for reading and processing csv files.
@@ -99,6 +100,8 @@ public class CppStatsFolderReader {
 					// don't use header files
 					if (filePath.contains(".h.xml"))
 							continue;
+					
+					FileCollection.GetOrAddFile(filePath);
 					
 					int start = Integer.parseInt(rec.get(1));
 					int end = Integer.parseInt(rec.get(2));

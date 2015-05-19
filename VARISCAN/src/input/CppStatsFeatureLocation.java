@@ -69,8 +69,8 @@ public class CppStatsFeatureLocation
 		// search for the corresponding feature expression and save information
 		for (String feature : this.featureExpressions)
 		{
-			// end-1 = #endif does not belong to lines of code
-			FeatureLocation loc = new FeatureLocation(this.filePath, this.start, this.end-1, stackSize, this.notFlags.get(this.featureExpressions.indexOf(feature)));
+			// end-1 = #endif does not belong to lines of code????
+			FeatureLocation loc = new FeatureLocation(this.filePath, this.start, this.end, stackSize, this.notFlags.get(this.featureExpressions.indexOf(feature)));
 			FeatureExpressionCollection.GetFeature(feature).AddFeatureLocation(loc);
 			
 			// remember created locations for combinations

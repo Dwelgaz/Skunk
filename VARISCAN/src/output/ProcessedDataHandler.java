@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import data.FeatureExpressionCollection;
+import data.FileCollection;
 import data.MethodCollection;
 
 /**
@@ -20,6 +21,7 @@ public class ProcessedDataHandler {
 	private static final String featuresPath = "features.xml";
 	private static final String methodsPath= "methods.xml";
 	private static final String generalPath = "general.txt";
+	private static final String filesPath = "files.xml";
 	
 	/**
 	 * Save the data processed during the operation into a general file, features file and a method file
@@ -36,6 +38,7 @@ public class ProcessedDataHandler {
 		{
 			FileUtils.write(new File(date + "_" + featuresPath), FeatureExpressionCollection.SerializeFeatures());
 			FileUtils.write(new File(date + "_" + methodsPath), MethodCollection.SerializeMethods());
+			FileUtils.write(new File(date + "_" + filesPath), FileCollection.SerializeFiles());
 			FileUtils.write(new File(date + "_" + generalPath), generalInput);
 		} 
 		catch (IOException e) 
@@ -76,6 +79,9 @@ public class ProcessedDataHandler {
 									break;
 								case methodsPath:
 									MethodCollection.DeserialzeMethods(current);
+									break;
+								case filesPath:
+									FileCollection.DeserialzeFiles(current);
 									break;
 								case generalPath:
 								{

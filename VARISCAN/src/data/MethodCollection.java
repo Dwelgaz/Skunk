@@ -103,6 +103,7 @@ public class MethodCollection
 		{
 			for (Method meth : methodsPerFile.get(file))
 			{
+				meth.SetLoc();
 				meth.SetNegationCount();
 				meth.SetNumberOfFeatureConstants();
 				meth.SetNumberOfFeatureOccurences();

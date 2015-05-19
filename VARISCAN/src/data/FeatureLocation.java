@@ -43,7 +43,7 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	
 	/** The method that contains the featurelocation (if inside a method); else = null.  */
 	public Method inMethod;
-	
+
 	/**
 	 * Instantiates a new feature location.
 	 *

@@ -35,23 +35,23 @@
 
 ## A threshold that defines how much feature locations must be within a method
 ## Example: NumberOfFeatureLocs=5 --> All feature locations within a method that combined are more than 5 different feature locations.
-Method_NumberOfFeatureLocs=1;mandatory
+#Method_NumberOfFeatureLocs=-1
 
 ## A threshold that defines how much feature constants must be within a method
 ## Example: NumberOfFeatureConstants=5 --> All feature locations within a method that combined are more than 5 different feature constants.
-# Method_NumberOfFeatureConstants=-1
+#Method_NumberOfFeatureConstants=-1
 
 ## A threshold that defines how much nesting must exist inside a method. Each nesting is counted per feature location.
 ## Example:
-Method_NestingSum=1;mandatory
+Method_NestingSum=1
 
 ## A threshold that defines how deep a nesting must go.
 ## Example: NestingDepthMin=2 --> All feature locations within a method that build a nesting bundle with at least a nesting depth of 2
-#Method_NestingDepthMin=1
+Method_NestingDepthMin=0
 
 ## A threshold that defines how much feature occurnces must be within the method
 ## Example: NumberOfFeatureOccurences=3 --> A method with 3 lines of code with a ifdef annonation
-Method_NumberOfFeatureOccurences=1;mandatory
+Method_NumberOfFeatureOccurences=1
 
 ## A threshold that defines how much negations must exist in a method
 ## Example:

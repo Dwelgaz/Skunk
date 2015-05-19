@@ -75,7 +75,12 @@ public class Feature implements Comparable<Feature>{
 		
 		// set loc for the feature
 		this.locs.add(loc);
-		this._lofc += loc.end - loc.start;
+		this._lofc += loc.end - loc.start + 1;
+		
+		data.File file = FileCollection.GetFile((loc.filePath));
+		for (int current : file.emptyLines)
+			if (current > loc.start && current < loc.end)
+				this._lofc--;
 		
 		// assign nesting depth
 		if (this.minNestingDepth == -1)
