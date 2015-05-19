@@ -47,7 +47,7 @@ Method_NestingSum=1
 
 ## A threshold that defines how deep a nesting must go.
 ## Example: NestingDepthMin=2 --> All feature locations within a method that build a nesting bundle with at least a nesting depth of 2
-Method_NestingDepthMin=0
+Method_NestingDepthMin=1
 
 ## A threshold that defines how much feature occurnces must be within the method
 ## Example: NumberOfFeatureOccurences=3 --> A method with 3 lines of code with a ifdef annonation

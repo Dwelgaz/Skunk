@@ -119,6 +119,14 @@ public class MethodCollection
 	 */
 	public static String SerializeMethods()
 	{
+		for (String key : methodsPerFile.keySet())
+		{
+			for (Method meth : GetMethodsOfFile(key))
+			{
+				meth.loac.clear();
+			}
+		}
+		
 		XStream stream = new XStream();
 		String xmlFeatures = stream.toXML(methodsPerFile);
 		

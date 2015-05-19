@@ -1,6 +1,7 @@
 package data;
 
 import java.util.LinkedList;
+import java.util.UUID;
 
 import org.w3c.dom.Node;
 
@@ -15,7 +16,8 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	/** The file path. */
 	public String filePath;
 	
-	
+	/** The id. */
+	public UUID id;
 	
 	/** The start position. */
 	public int start;
@@ -32,7 +34,7 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	public Boolean notFlag;
 
 	/** The list of features of combined feature locaions (i.e. Feature 1 && Feature 2. */
-	public LinkedList<FeatureLocation> combinedWith;
+	public LinkedList<UUID> combinedWith;
 
 	
 	
@@ -56,6 +58,8 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	public FeatureLocation(String filePath, int start, int end, int nestingDepth, Boolean notFlag)
 	{
 		this.filePath = filePath;
+		this.id = java.util.UUID.randomUUID();
+		
 		
 		this.start = start;
 		this.end = end;
@@ -64,7 +68,7 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 		
 		this.notFlag = notFlag;
 		
-		this.combinedWith = new LinkedList<FeatureLocation>();
+		this.combinedWith = new LinkedList<UUID>();
 		
 		this.granularity = EnumGranularity.NOTDEFINED;
 		this.discipline = EnumDiscipline.NOTDEFINED;
@@ -172,7 +176,7 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 				break;
 			default:
 				if (!node.getNodeName().contains("cpp:"))
-					System.out.println(node.getNodeName());
+					//TODO System.out.println(node.getNodeName());
 				break;
 		}
 		

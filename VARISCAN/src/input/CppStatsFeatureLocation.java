@@ -82,7 +82,7 @@ public class CppStatsFeatureLocation
 			for (FeatureLocation other : create)
 			{
 				if (other != current)
-					current.combinedWith.add(other);
+					current.combinedWith.add(other.id);
 			}		
 	}
 	

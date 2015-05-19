@@ -2,9 +2,15 @@ package detection;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
+import java.util.UUID;
 
 import data.Feature;
 import data.FeatureExpressionCollection;
@@ -12,12 +18,16 @@ import data.FeatureLocation;
 import data.Method;
 import data.MethodCollection;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Detector.
+ */
 public class Detector {
 
-	/** The config contains the definition of the codesmell */
+	/**  The config contains the definition of the codesmell. */
 	private DetectionConfig config;
 	
-	/** Fitting feature locations with an explanation */
+	/**  Fitting feature locations with an explanation. */
 	private Map<FeatureLocation, ArrayList<EnumReason>> featureResult;
 	
 	/**
@@ -32,7 +42,7 @@ public class Detector {
 	}
 	
 	/**
-	 * Perform the detection based on the configuration and return fitting features
+	 * Perform the detection based on the configuration and return fitting features.
 	 *
 	 * @return a list with fitting features
 	 */
@@ -55,7 +65,7 @@ public class Detector {
 	
 	
 	/**
-	 * Filter results based on the mandatory values of the configuration
+	 * Filter results based on the mandatory values of the configuration.
 	 */
 	private void filterResults()
 	{
@@ -102,7 +112,7 @@ public class Detector {
 	
 	
 	/**
-	 * Checks the methodlocation for suitable locations in a method
+	 * Checks the methodlocation for suitable locations in a method.
 	 */
 	private void checkMethodCollection() {
 		for (String file: MethodCollection.methodsPerFile.keySet())
@@ -110,7 +120,8 @@ public class Detector {
 			for (Method meth : MethodCollection.methodsPerFile.get(file))
 			{
 				// sort functions
-				Collections.sort(meth.featureLocations);
+				//Collections.sort(meth.featureLocations);
+				this.sortByValues(meth.featureLocations);
 				
 				// ratio lofc to loc
 				checkForMethodLofcToLoc(meth);
@@ -134,7 +145,7 @@ public class Detector {
 	}
 	
 	/**
-	 * Check the feature collection for suitable feature locations
+	 * Check the feature collection for suitable feature locations.
 	 */
 	private void checkFeatureCollection() {
 		// check each feature and location
@@ -172,8 +183,11 @@ public class Detector {
 			
 			if(meth.lofc >= minLofc)
 			{
-				for(FeatureLocation loc : meth.featureLocations)
+				for (UUID id : meth.featureLocations.keySet())
+				{
+					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_LOFCTOLOC);
+				}
 			}
 		}
 	}
@@ -191,8 +205,11 @@ public class Detector {
 			
 			if(meth.GetLinesOfAnnotatedCode() >= minLoac)
 			{
-				for(FeatureLocation loc : meth.featureLocations)
+				for (UUID id : meth.featureLocations.keySet())
+				{
+					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_LOACTOLOC);
+				}
 			}
 		}
 	}
@@ -207,8 +224,11 @@ public class Detector {
 		{
 			if (meth.GetFeatureLocationCount() > this.config.Method_NumberOfFeatureLocs)
 			{
-				for(FeatureLocation loc : meth.featureLocations)
+				for (UUID id : meth.featureLocations.keySet())
+				{
+					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURELOCS);
+				}
 			}
 		}
 	}
@@ -223,8 +243,11 @@ public class Detector {
 		{
 			if (meth.GetFeatureLocationCount() > this.config.Method_NumberOfFeatureOccurences)
 			{
-				for(FeatureLocation loc : meth.featureLocations)
+				for (UUID id : meth.featureLocations.keySet())
+				{
+					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATUREOCC);
+				}
 			}
 		}
 	}
@@ -240,8 +263,11 @@ public class Detector {
 		{
 			if (meth.numberFeatureConstants > this.config.Method_NumberOfFeatureConstants)
 			{
-				for(FeatureLocation loc : meth.featureLocations)
+				for (UUID id : meth.featureLocations.keySet())
+				{
+					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONST);
+				}
 			}
 		}
 	}
@@ -256,8 +282,11 @@ public class Detector {
 		if (this.config.Method_NegationCount != -1)
 		{
 			if (meth.negationCount > this.config.Method_NegationCount)
-				for(FeatureLocation loc : meth.featureLocations)
+				for (UUID id : meth.featureLocations.keySet())
+				{
+					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERNEGATIONS);
+				}
 		}
 	}
 
@@ -271,8 +300,11 @@ public class Detector {
 		if (this.config.Method_NestingSum != -1)
 		{
 			if (meth.nestingSum >= this.config.Method_NestingSum)
-				for(FeatureLocation loc : meth.featureLocations)
+				for (UUID id : meth.featureLocations.keySet())
+				{
+					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGSUM);
+				}
 		}
 	}
 	
@@ -289,8 +321,10 @@ public class Detector {
 				Stack<FeatureLocation> nestingStack = new Stack<FeatureLocation>();		
 				int beginNesting = -1;
 				
-				for(FeatureLocation loc : meth.featureLocations)
-				{	
+				for (UUID id : meth.featureLocations.keySet())
+				{
+					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
+					
 					// add the item instantly if the stack is empty, set the beginning nesting depth to the nd of the loc (nesting depth is file-based not method based)
 					if (nestingStack.isEmpty())
 					{
@@ -435,7 +469,7 @@ public class Detector {
 	
 	
 	/**
-	 * Adds the feature location to the result list with the specified reason, or appends another reason if the location is already inside the result list
+	 * Adds the feature location to the result list with the specified reason, or appends another reason if the location is already inside the result list.
 	 *
 	 * @param loc the feature location to add
 	 * @param reason the reason
@@ -451,5 +485,39 @@ public class Detector {
 			this.featureResult.put(loc, enumReason);
 		}
 	}
+	
+	
+	
+	
+	  /**
+  	 * Sort a hashmap by values
+  	 *
+  	 * @param <K> the key type
+  	 * @param <V> the value type
+  	 * @param map the map
+  	 * @return the linked hash map
+  	 */
+  	public <K extends Comparable,V extends Comparable> LinkedHashMap<K,V> sortByValues(Map<K,V> map)
+  	{
+	        List<Map.Entry<K,V>> entries = new LinkedList<Map.Entry<K,V>>(map.entrySet());
+	      
+	        Collections.sort(entries, new Comparator<Map.Entry<K,V>>() {
+
+	            @Override
+	            public int compare(Entry<K, V> o1, Entry<K, V> o2) {
+	                return o1.getValue().compareTo(o2.getValue());
+	            }
+	        });
+	        
+	        //LinkedHashMap will keep the keys in the order they are inserted
+	        //which is currently sorted on natural ordering
+	        LinkedHashMap<K,V> sortedMap = new LinkedHashMap<K,V>();
+	      
+	        for(Map.Entry<K,V> entry: entries){
+	            sortedMap.put(entry.getKey(), entry.getValue());
+	        }
+	      
+	        return sortedMap;
+	  }
 	
 }

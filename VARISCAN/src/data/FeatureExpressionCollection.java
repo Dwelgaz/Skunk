@@ -3,6 +3,7 @@ package data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -96,6 +97,16 @@ public class FeatureExpressionCollection
 		Feature newFeature = new Feature(name);
 		AddFeature(newFeature);
 		return newFeature;
+	}
+	
+	public static FeatureLocation GetFeatureLocation(String name, UUID id)
+	{
+		for (Feature feature : _features)
+		{
+			if (feature.locs.containsKey(id))
+				return feature.locs.get(id);
+		}
+		return null;
 	}
 	
 	/**

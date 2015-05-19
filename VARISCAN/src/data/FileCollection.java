@@ -83,6 +83,13 @@ public class FileCollection
 	 */
 	public static String SerializeFiles()
 	{
+		// nullify already processed data for memory reasons
+		for (data.File file : Files)
+		{
+			file.emptyLines.clear();
+			file.loac.clear();
+		}
+		
 		XStream stream = new XStream();
 		String xmlFeatures = stream.toXML(Files);
 		

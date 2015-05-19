@@ -1,7 +1,11 @@
 package data;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The Class Feature.
@@ -15,7 +19,7 @@ public class Feature implements Comparable<Feature>{
 	private int _lofc;
 	
 	/** The annotation locations*/
-	private List<FeatureLocation> locs;
+	public HashMap<UUID, FeatureLocation> locs;
 	
 	/** nesting Depth informations */
 	public int minNestingDepth;
@@ -45,7 +49,8 @@ public class Feature implements Comparable<Feature>{
 	 */
 	public List<FeatureLocation> getLocs()
 	{
-		return this.locs;
+		List<FeatureLocation> locs = new LinkedList(this.locs.values());
+		return locs;
 	}
 	
 	/**
@@ -56,7 +61,7 @@ public class Feature implements Comparable<Feature>{
 	public Feature(String name)
 	{
 		this.Name = name;
-		this.locs = new ArrayList<FeatureLocation>();
+		this.locs = new HashMap<UUID, FeatureLocation>();
 		this.compilationFiles = new ArrayList<String>();
 		
 		this.maxNestingDepth = -1;
@@ -74,7 +79,7 @@ public class Feature implements Comparable<Feature>{
 		loc.corresponding = this;
 		
 		// set loc for the feature
-		this.locs.add(loc);
+		this.locs.put(loc.id, loc);
 		this._lofc += loc.end - loc.start + 1;
 		
 		data.File file = FileCollection.GetFile((loc.filePath));

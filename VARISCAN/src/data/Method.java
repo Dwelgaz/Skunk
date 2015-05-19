@@ -1,8 +1,10 @@
 package data;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The Class Method.
@@ -32,9 +34,10 @@ public class Method
 	
 	/** The lines of visible annotated code. (amount of loc that is inside annotations)*/
 	public ArrayList<Integer> loac;
+	private int processedLoac;
 	
 	/** The feature locations. */
-	public List<FeatureLocation> featureLocations;
+	public LinkedHashMap<UUID, String> featureLocations;
 	
 	/** The number feature constants in the method. */
 	public int numberFeatureConstants;
@@ -69,7 +72,7 @@ public class Method
 		// initialize loc
 		this.lofc = 0;
 		
-		this.featureLocations = new LinkedList<FeatureLocation>();
+		this.featureLocations = new LinkedHashMap<UUID, String>();
 		this.loac = new ArrayList<Integer>();
 		
 		this.numberFeatureConstants = 0;
@@ -84,10 +87,10 @@ public class Method
 	 */
 	public void AddFeatureLocation(FeatureLocation loc)
 	{
-		if (!this.featureLocations.contains(loc))
+		if (!this.featureLocations.containsKey(loc.id))
 		{
 			// connect feature to the method
-			this.featureLocations.add(loc);
+			this.featureLocations.put(loc.id, loc.corresponding.Name);
 			loc.inMethod = this;
 			
 			// assign nesting depth values
@@ -143,7 +146,7 @@ public class Method
 	 */
 	public int GetLinesOfAnnotatedCode()
 	{
-		return this.loac.size();
+		return this.processedLoac;
 	}
 
 	/**
@@ -155,8 +158,9 @@ public class Method
 	{
 		ArrayList<String> constants = new ArrayList<String>();
 		
-		for (FeatureLocation loc : this.featureLocations)
+		for (UUID id : featureLocations.keySet())
 		{
+			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
 			if (!constants.contains(loc.corresponding.Name))
 				constants.add(loc.corresponding.Name);
 		}
@@ -175,12 +179,14 @@ public class Method
 		ArrayList<Integer> noOcc = new ArrayList<Integer>();
 		
 		// remember the starting position of each feature location, but do not add it twice
-		for (FeatureLocation loc : this.featureLocations)
+		for (UUID id : featureLocations.keySet())
 		{
+			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
 			if (!noOcc.contains(loc.start))
 				noOcc.add(loc.start);
 		}
 		
+		this.processedLoac = this.loac.size();
 		this.numberFeatureOccurences = noOcc.size();
 	}
 	
@@ -194,8 +200,9 @@ public class Method
 	{
 		int result = 0;
 		
-		for (FeatureLocation loc : this.featureLocations)
+		for (UUID id : featureLocations.keySet())
 		{
+			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
 			if (loc.notFlag)
 				result++;
 		}
@@ -213,8 +220,9 @@ public class Method
 		int minNesting = 5000;
 		
 		// add each nesting to the nesting sum
-		for (FeatureLocation loc : this.featureLocations)
+		for (UUID id : featureLocations.keySet())
 		{
+			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
 			res += loc.nestingDepth;
 			if (loc.nestingDepth < minNesting)
 				minNesting = loc.nestingDepth;

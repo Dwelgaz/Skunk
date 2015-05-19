@@ -2,8 +2,10 @@ package data;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
@@ -27,9 +29,10 @@ public class File
 	
 	/** The lines of visible annotated code. (amount of loc that is inside annotations)*/
 	public ArrayList<Integer> loac;
+	private int processedLoac;
 	
 	/** The feature locations. */
-	public List<FeatureLocation> featureLocations;
+	public LinkedHashMap<UUID, String> featureLocations;
 	
 	/** The methods. */
 	public List<Method> methods;
@@ -67,7 +70,7 @@ public class File
 		this.numberFeatureOccurences = 0;
 		this.negationCount = 0;
 		
-		this.featureLocations = new LinkedList<FeatureLocation>();
+		this.featureLocations = new LinkedHashMap<UUID, String>();
 		this.loac = new ArrayList<Integer>();
 		this.emptyLines = new ArrayList<Integer>();
 		
@@ -123,10 +126,10 @@ public class File
 	 */
 	public void AddFeatureLocation(FeatureLocation loc)
 	{
-		if (!this.featureLocations.contains(loc))
+		if (!this.featureLocations.containsKey(loc.id))
 		{
 			// connect feature to the method
-			this.featureLocations.add(loc);
+			this.featureLocations.put(loc.id, loc.corresponding.Name);
 			
 			// assign nesting depth values
 			if (loc.nestingDepth > this.nestingDepthMax)
@@ -178,7 +181,7 @@ public class File
 	 */
 	public int GetLinesOfAnnotatedCode()
 	{
-		return this.loac.size();
+		return this.processedLoac;
 	}
 
 	/**
@@ -190,12 +193,14 @@ public class File
 	{
 		ArrayList<String> constants = new ArrayList<String>();
 		
-		for (FeatureLocation loc : this.featureLocations)
+		for (UUID id : featureLocations.keySet())
 		{
+			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
 			if (!constants.contains(loc.corresponding.Name))
 				constants.add(loc.corresponding.Name);
 		}
 		
+		this.processedLoac = this.loac.size();
 		this.numberFeatureConstants = constants.size();
 	}
 	
@@ -209,8 +214,9 @@ public class File
 		ArrayList<Integer> noOcc = new ArrayList<Integer>();
 		
 		// remember the starting position of each feature location, but do not add it twice
-		for (FeatureLocation loc : this.featureLocations)
+		for (UUID id : featureLocations.keySet())
 		{
+			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
 			if (!noOcc.contains(loc.start))
 				noOcc.add(loc.start);
 		}
@@ -228,8 +234,9 @@ public class File
 	{
 		int result = 0;
 		
-		for (FeatureLocation loc : this.featureLocations)
+		for (UUID id : featureLocations.keySet())
 		{
+			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
 			if (loc.notFlag)
 				result++;
 		}
@@ -246,8 +253,11 @@ public class File
 		int res = 0;
 		
 		// add each nesting to the nesting sum
-		for (FeatureLocation loc : this.featureLocations)
+		for (UUID id : featureLocations.keySet())
+		{
+			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
 			res += loc.nestingDepth;
+		}
 		
 		this.nestingSum = res;
 	}
