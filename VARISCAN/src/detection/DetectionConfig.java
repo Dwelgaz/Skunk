@@ -20,9 +20,9 @@ public class DetectionConfig {
 	public float Feature_ProjectLocRatio_Weight = 1;
 	
 	/** A ratio that defines the ratio between the amount of feature locations for a feature to the amount of feature locations in the project */
-	public double Feature_NoflToSumRatio = -1000;
-	public boolean Feature_NoflToSumRatio_Mand = false;
-	public float Feature_NoflToSumRatio_Weight = 1;
+	public double Feature_NoFeatureConstantsToSumRatio = -1000;
+	public boolean Feature_NoFeatureConstantsRatio_Mand = false;
+	public float Feature_NoFeatureConstantsRatio_Weight = 1;
 	
 	/** The amount of compilation units (files) the feature is in */
 	public double Feature_NumberOfCompilUnits = -1;
@@ -40,14 +40,14 @@ public class DetectionConfig {
 	public float Method_LoacToLocRatio_Weight = -1;
 	
 	/** The amount of feature locations a method should have minimally*/
-	public int Method_NumberOfFeatureLocs = -1;
-	public boolean Method_NumberOfFeatureLocs_Mand = false;
-	public float Method_NumberOfFeatureLocs_Weight = 1;
-	
-	/** The amount of feature constants a method should have minimally */
 	public int Method_NumberOfFeatureConstants = -1;
 	public boolean Method_NumberOfFeatureConstants_Mand = false;
 	public float Method_NumberOfFeatureConstants_Weight = 1;
+	
+	/** The amount of feature constants (without duples) a method should have minimally */
+	public int Method_NumberOfFeatureConstantsNonDup = -1;
+	public boolean Method_NumberOfFeatureConstantsNonDup_Mand = false;
+	public float Method_NumberOfFeatureConstantsNonDup_Weight = 1;
 	
 	/** The minimal nesting depth of a method. (summarized nestings) */
 	public int Method_NestingSum = -1;
@@ -65,9 +65,9 @@ public class DetectionConfig {
 	public float Method_NegationCount_Weight = 1;
 	
 	/** The minimal amount of featureoccurences. */
-	public int Method_NumberOfFeatureOccurences = -1;
-	public boolean Method_NumberOfFeatureOccurences_Mand = false;
-	public float Method_NumberOfFeatureOccurences_Weight = 1;
+	public int Method_NumberOfFeatureLocations = -1;
+	public boolean Method_NumberOfFeatureLocations_Mand = false;
+	public float Method_NumberOfFeatureLocations_Weight = 1;
 	
 	/** Defines how much values have been set. */
 	public int SetValues = 0;
@@ -149,8 +149,8 @@ public class DetectionConfig {
 			res += "\r\nRatio - LOFC to mean LOFC: " + this.Feature_MeanLofcRatio + "; mandatory=" + this.Feature_MeanLofcRatio_Mand;
 		if (this.Feature_ProjectLocRatio != -1000)
 			res += "\r\nRatio - LOFC to LOC: " + this.Feature_ProjectLocRatio + "; mandatory=" + this.Feature_ProjectLocRatio_Mand;
-		if (this.Feature_NoflToSumRatio != -1000)
-			res += "\r\nRatio - Featurelocations(FL) to all FL: " + this.Feature_MeanLofcRatio + "; mandatory=" + this.Feature_MeanLofcRatio_Mand;
+		if (this.Feature_NoFeatureConstantsToSumRatio != -1000)
+			res += "\r\nRatio - Feature Constants(FC) to all FC: " + this.Feature_MeanLofcRatio + "; mandatory=" + this.Feature_MeanLofcRatio_Mand;
 		if (this.Feature_NumberOfCompilUnits != -1)
 			res += "\r\nAmount - Number of compilation units: " + this.Feature_NumberOfCompilUnits + "; mandatory=" + this.Feature_NumberOfCompilUnits_Mand;
 		
@@ -160,12 +160,12 @@ public class DetectionConfig {
 			res += "\r\nRatio - LOFC to LOC: " + this.Method_LofcToLocRatio + "; mandatory=" + this.Method_LofcToLocRatio_Mand;
 		if (this.Method_LoacToLocRatio != -1000)
 			res += "\r\nRatio - LOAC to LOC: " + this.Method_LoacToLocRatio + "; mandatory=" + this.Method_LoacToLocRatio_Mand;
-		if (this.Method_NumberOfFeatureLocs != -1)
-			res += "\r\nAmount - Number of featurelocations: " + this.Method_NumberOfFeatureLocs + "; mandatory=" + this.Method_NumberOfFeatureLocs_Mand;
 		if (this.Method_NumberOfFeatureConstants != -1)
-			res += "\r\nAmount - Number of featureconstants: " + this.Method_NumberOfFeatureConstants + "; mandatory=" + this.Method_NumberOfFeatureConstants_Mand;
-		if (this.Method_NumberOfFeatureOccurences != -1)
-			res += "\r\nAmount - Number of feature occurences: " + this.Method_NumberOfFeatureOccurences + "; mandatory=" + this.Method_NumberOfFeatureOccurences_Mand;
+			res += "\r\nAmount - Number of feature constants: " + this.Method_NumberOfFeatureConstants + "; mandatory=" + this.Method_NumberOfFeatureConstants_Mand;
+		if (this.Method_NumberOfFeatureConstantsNonDup != -1)
+			res += "\r\nAmount - Number of feature constants (without doubles): " + this.Method_NumberOfFeatureConstantsNonDup + "; mandatory=" + this.Method_NumberOfFeatureConstantsNonDup_Mand;
+		if (this.Method_NumberOfFeatureLocations != -1)
+			res += "\r\nAmount - Number of feature locations: " + this.Method_NumberOfFeatureLocations + "; mandatory=" + this.Method_NumberOfFeatureLocations_Mand;
 		if (this.Method_NestingSum != -1)
 			res += "\r\nAmount - Number of nestings: " + this.Method_NestingSum + "; mandatory=" + this.Method_NestingSum_Mand;
 		if (this.Method_NestingDepthMin != -1)
@@ -178,6 +178,9 @@ public class DetectionConfig {
 	
 	// TODO Output auch als Excel/CSV
 	
+	// Ausgabewerte auch noch anzeigen
+	// Attributes overview feature code
+	// Generelle Übersichtsdaten der Projekte (Metriken) in Overview
 	// TODO Annotation File --> selbe wie bundle, nur auf file ebene
 	// TODO Speculative Generalty
 	// TODO In Output für jede Reason die entsprechende Zahl noch anzeigen

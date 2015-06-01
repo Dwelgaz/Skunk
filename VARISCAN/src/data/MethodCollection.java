@@ -105,8 +105,8 @@ public class MethodCollection
 			{
 				meth.SetLoc();
 				meth.SetNegationCount();
-				meth.SetNumberOfFeatureConstants();
-				meth.SetNumberOfFeatureOccurences();
+				meth.SetNumberOfFeatureConstantsNonDup();
+				meth.SetNumberOfFeatureLocations();
 				meth.SetNestingSum();
 			}
 		}

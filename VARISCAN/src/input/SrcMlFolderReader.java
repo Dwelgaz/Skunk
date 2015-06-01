@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 
 import data.Feature;
 import data.FeatureExpressionCollection;
-import data.FeatureLocation;
+import data.FeatureConstant;
 import data.FileCollection;
 import data.MethodCollection;
 
@@ -40,7 +40,7 @@ public class SrcMlFolderReader
 		// go through each feature location and calculate granularity
 		for (Feature feat : FeatureExpressionCollection.GetFeatures())
 		{
-			for (FeatureLocation loc : feat.getLocs())
+			for (FeatureConstant loc : feat.getConstants())
 			{
 				this.processFileFromLocations(loc);
 			}
@@ -54,7 +54,7 @@ public class SrcMlFolderReader
 	 *
 	 * @param loc the feature location
 	 */
-	private void processFileFromLocations(FeatureLocation loc)
+	private void processFileFromLocations(FeatureConstant loc)
 	{
 		try
 		{
@@ -65,7 +65,7 @@ public class SrcMlFolderReader
 		
 	        // Assign to file
 	        data.File file = FileCollection.GetOrAddFile(loc.filePath);
-	        file.AddFeatureLocation(loc);
+	        file.AddFeatureConstant(loc);
 	        
 			// go through each directive and find the directive of the specific location by using the start position
 			NodeList directives = doc.getElementsByTagName("cpp:directive");
@@ -78,10 +78,10 @@ public class SrcMlFolderReader
 					current = current.getParentNode();
 					
 					// calculate the granularty by checking each sibling node from start to end of the annotation
-					this.calculateGranularityOfLocation(loc, current);
+					this.calculateGranularityOfConstant(loc, current);
 					
 					// assign this location to its corresponding method
-					this.assignFeatureLocationToMethod(loc, current);
+					this.assignFeatureConstantToMethod(loc, current);
 					
 					break;
 				}
@@ -93,7 +93,7 @@ public class SrcMlFolderReader
 		}
 	}
 
-	private void calculateGranularityOfLocation(FeatureLocation loc, Node current) 
+	private void calculateGranularityOfConstant(FeatureConstant loc, Node current) 
 	{		
 		// check sibling nodes until a granularity defining tag is found or until the end of the annotation
 		 Node sibling = current;
@@ -129,12 +129,12 @@ public class SrcMlFolderReader
 	}
 	
 	/**
-	 * Assign feature location to method.
+	 * Assign feature constant to method.
 	 *
-	 * @param loc the loc
+	 * @param constant the feature constant
 	 * @param annotationNode the annotation node
 	 */
-	private void assignFeatureLocationToMethod(FeatureLocation loc, Node annotationNode)
+	private void assignFeatureConstantToMethod(FeatureConstant constant, Node annotationNode)
 	{
 		// check parent nodes of the annotation until it is of type function/unit
 		Node parent = annotationNode.getParentNode();
@@ -152,21 +152,21 @@ public class SrcMlFolderReader
 			String functionSignature = this.createFunctionSignature(parent);
 			
 			// get or create method
-			data.Method method = MethodCollection.GetMethod(loc.filePath, functionSignature);
+			data.Method method = MethodCollection.GetMethod(constant.filePath, functionSignature);
 			
 			if (method == null)
 			{
 				method = new data.Method(functionSignature, Integer.parseInt((String) parent.getUserData("lineNumber")), this.countLines(parent.getTextContent()));
-				MethodCollection.AddMethodToFile(loc.filePath, method);
+				MethodCollection.AddMethodToFile(constant.filePath, method);
 			}
 			
 			// add method to file
-			data.File file = FileCollection.GetFile(loc.filePath);
+			data.File file = FileCollection.GetFile(constant.filePath);
 			if (file != null)
 				file.AddMethod(method);
 			
 			// add location to the method
-			method.AddFeatureLocation(loc);
+			method.AddFeatureConstant(constant);
 			
 
 		}

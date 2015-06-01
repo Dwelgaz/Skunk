@@ -31,7 +31,7 @@ public class ProcessedDataHandler {
 		System.out.println("\r\n... Saving processed Data....");
 		
 		String date = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
-		String generalInput = "FeatureExpressionCollection=" + FeatureExpressionCollection.GetCount() + ";" + FeatureExpressionCollection.GetLoc() + ";" + FeatureExpressionCollection.GetMeanLofc() + ";" + FeatureExpressionCollection.amountOfFeatureLocs;
+		String generalInput = "FeatureExpressionCollection=" + FeatureExpressionCollection.GetCount() + ";" + FeatureExpressionCollection.GetLoc() + ";" + FeatureExpressionCollection.GetMeanLofc() + ";" + FeatureExpressionCollection.numberOfFeatureConstants;
 		
 		// Save files
 		try 
@@ -94,7 +94,7 @@ public class ProcessedDataHandler {
 									FeatureExpressionCollection.SetCount(Integer.parseInt(split[0]));
 									FeatureExpressionCollection.AddLoc(Integer.parseInt(split[1]));
 									FeatureExpressionCollection.SetMeanLofc(Integer.parseInt(split[2]));
-									FeatureExpressionCollection.amountOfFeatureLocs = Integer.parseInt(split[3]);
+									FeatureExpressionCollection.numberOfFeatureConstants = Integer.parseInt(split[3]);
 									break;
 								}
 							}

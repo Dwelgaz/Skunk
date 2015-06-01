@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import data.Feature;
 import data.FeatureExpressionCollection;
-import data.FeatureLocation;
+import data.FeatureConstant;
 import data.Method;
 import data.MethodCollection;
 
@@ -28,7 +28,7 @@ public class Detector {
 	private DetectionConfig config;
 	
 	/**  Fitting feature locations with an explanation. */
-	private Map<FeatureLocation, ArrayList<EnumReason>> featureResult;
+	private Map<FeatureConstant, ArrayList<EnumReason>> featureResult;
 	
 	/**
 	 * Instantiates a new detector.
@@ -38,7 +38,7 @@ public class Detector {
 	public Detector (DetectionConfig config)
 	{
 		this.config = config;
-		this.featureResult = new HashMap<FeatureLocation, ArrayList<EnumReason>>();
+		this.featureResult = new HashMap<FeatureConstant, ArrayList<EnumReason>>();
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class Detector {
 	 *
 	 * @return a list with fitting features
 	 */
-	public Map<FeatureLocation, ArrayList<EnumReason>> Perform()
+	public Map<FeatureConstant, ArrayList<EnumReason>> Perform()
 	{
 		System.out.println("... Start detection based on the config file...");
 		
@@ -76,8 +76,8 @@ public class Detector {
 			mandatories.add(EnumReason.LARGEFEATURE_LOFCTOMEANLOFC);
 		if (config.Feature_ProjectLocRatio_Mand)
 			mandatories.add(EnumReason.LARGEFEATURE_LOFCTOLOC);
-		if (config.Feature_NoflToSumRatio_Mand)
-			mandatories.add(EnumReason.SHOTGUNSURGERY_NOFLTOSUMNOFL);
+		if (config.Feature_NoFeatureConstantsRatio_Mand)
+			mandatories.add(EnumReason.SHOTGUNSURGERY_NOFCOSUMNOFC);
 		if (config.Feature_NumberOfCompilUnits_Mand)
 			mandatories.add(EnumReason.SHOTGUNSURGERY_NUMBERCOMPILATIONUNITS);
 		if (config.Method_LoacToLocRatio_Mand)
@@ -90,14 +90,14 @@ public class Detector {
 			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGDEPTHMIN);
 		if (config.Method_NestingSum_Mand)
 			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGSUM);
+		if (config.Method_NumberOfFeatureConstantsNonDup_Mand)
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONSTNONDUP);
 		if (config.Method_NumberOfFeatureConstants_Mand)
-			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONST);
-		if (config.Method_NumberOfFeatureLocs_Mand)
-			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURELOCS);
+			mandatories.add(EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONSTANTS);
 		
 		// delete featurelocations from the result if it does not contain a mandatory attribute
-		ArrayList<FeatureLocation> toDelete = new ArrayList<FeatureLocation>();
-		for (FeatureLocation key : featureResult.keySet())
+		ArrayList<FeatureConstant> toDelete = new ArrayList<FeatureConstant>();
+		for (FeatureConstant key : featureResult.keySet())
 		{
 			for (EnumReason mandatory : mandatories)
 			{
@@ -106,7 +106,7 @@ public class Detector {
 			}
 		}
 		
-		for (FeatureLocation key : toDelete)
+		for (FeatureConstant key : toDelete)
 			featureResult.remove(key);
 	}
 	
@@ -121,7 +121,7 @@ public class Detector {
 			{
 				// sort functions
 				//Collections.sort(meth.featureLocations);
-				this.sortByValues(meth.featureLocations);
+				this.sortByValues(meth.featureConstants);
 				
 				// ratio lofc to loc
 				checkForMethodLofcToLoc(meth);
@@ -129,11 +129,11 @@ public class Detector {
 				// ratio loac to loc
 				checkForMethodLoacToLoc(meth);
 				
-				checkMethodForNumberOfFeatureLocs(meth);
+				checkMethodForNumberOfFeatureConstants(meth);
 				
-				checkMethodForNumberOfFeatureOccs(meth);
+				checkMethodForNumberOfFeatureLocations(meth);
 				
-				checkMethodForNumberFeatureConstants(meth);
+				checkMethodForNumberFeatureConstantsNonDup(meth);
 				
 				checkMethodForNumberNegations(meth);
 				
@@ -151,17 +151,17 @@ public class Detector {
 		// check each feature and location
 		for (Feature feat : FeatureExpressionCollection.GetFeatures())
 		{	
-			checkForFeatureNoflToSum(feat);
+			checkForFeatureNoFeatureConstantsToSum(feat);
 			
 			checkForFeatureCompilUnits(feat);
 			
-			for (FeatureLocation loc : feat.getLocs())
+			for (FeatureConstant constant : feat.getConstants())
 			{
 				// check for features that take up a huge part of the project loc
-				checkForFeatureToProjectRatio(feat, loc);	
+				checkForFeatureToProjectRatio(feat, constant);	
 				
 				// check for features that are bigger than the mean lofc
-				checkForFeatureToFeatureRatio(loc);
+				checkForFeatureToFeatureRatio(constant);
 			}
 		}
 	}
@@ -183,9 +183,9 @@ public class Detector {
 			
 			if(meth.lofc >= minLofc)
 			{
-				for (UUID id : meth.featureLocations.keySet())
+				for (UUID id : meth.featureConstants.keySet())
 				{
-					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
+					FeatureConstant loc = FeatureExpressionCollection.GetFeatureConstant(meth.featureConstants.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_LOFCTOLOC);
 				}
 			}
@@ -205,9 +205,9 @@ public class Detector {
 			
 			if(meth.GetLinesOfAnnotatedCode() >= minLoac)
 			{
-				for (UUID id : meth.featureLocations.keySet())
+				for (UUID id : meth.featureConstants.keySet())
 				{
-					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
+					FeatureConstant loc = FeatureExpressionCollection.GetFeatureConstant(meth.featureConstants.get(id), id);
 					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_LOACTOLOC);
 				}
 			}
@@ -215,38 +215,38 @@ public class Detector {
 	}
 	
 	/**
-	 * Check if the number of featurelocations in the method exceeds the configuration value.
-	 * Add all feature locs to the result with the Number of FeatureLocs reason
+	 * Check if the number of feature constants in the method exceeds the configuration value.
+	 * Add all feature locs to the result with the Number of Feature Constants reason
 	 * @param meth the meth
 	 */
-	private void checkMethodForNumberOfFeatureLocs(Method meth) {
-		if (this.config.Method_NumberOfFeatureLocs != -1)
+	private void checkMethodForNumberOfFeatureConstants(Method meth) {
+		if (this.config.Method_NumberOfFeatureConstants != -1)
 		{
-			if (meth.GetFeatureLocationCount() > this.config.Method_NumberOfFeatureLocs)
+			if (meth.GetFeatureConstantCount() > this.config.Method_NumberOfFeatureConstants)
 			{
-				for (UUID id : meth.featureLocations.keySet())
+				for (UUID id : meth.featureConstants.keySet())
 				{
-					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
-					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURELOCS);
+					FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(meth.featureConstants.get(id), id);
+					this.addFeatureLocWithReason(constant, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONSTANTS);
 				}
 			}
 		}
 	}
 	
 	/**
-	 * Check if the number of feature occurences in the method exceeds the configuration value.
-	 * Add all feature locs to the result with the Number of FeatureLocs reason
+	 * Check if the number of feature locations in the method exceeds the configuration value.
+	 * Add all feature constans to the result with the Number of Feature Locations reason
 	 * @param meth the meth
 	 */
-	private void checkMethodForNumberOfFeatureOccs(Method meth) {
-		if (this.config.Method_NumberOfFeatureOccurences != -1)
+	private void checkMethodForNumberOfFeatureLocations(Method meth) {
+		if (this.config.Method_NumberOfFeatureLocations != -1)
 		{
-			if (meth.GetFeatureLocationCount() > this.config.Method_NumberOfFeatureOccurences)
+			if (meth.GetFeatureConstantCount() > this.config.Method_NumberOfFeatureLocations)
 			{
-				for (UUID id : meth.featureLocations.keySet())
+				for (UUID id : meth.featureConstants.keySet())
 				{
-					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
-					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATUREOCC);
+					FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(meth.featureConstants.get(id), id);
+					this.addFeatureLocWithReason(constant, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURELOC);
 				}
 			}
 		}
@@ -254,26 +254,26 @@ public class Detector {
 
 	/**
 	 * Check if the number of feature constants in the method exceeds the configuration value.
-	 * Add all feature locs to the result with the number of feature constants reason
+	 * Add all feature constants to the result with the number of feature constants reason
 	 *
 	 * @param meth the meth
 	 */
-	private void checkMethodForNumberFeatureConstants(Method meth) {
-		if (this.config.Method_NumberOfFeatureConstants != -1)
+	private void checkMethodForNumberFeatureConstantsNonDup(Method meth) {
+		if (this.config.Method_NumberOfFeatureConstantsNonDup != -1)
 		{
-			if (meth.numberFeatureConstants > this.config.Method_NumberOfFeatureConstants)
+			if (meth.numberFeatureConstantsNonDup > this.config.Method_NumberOfFeatureConstantsNonDup)
 			{
-				for (UUID id : meth.featureLocations.keySet())
+				for (UUID id : meth.featureConstants.keySet())
 				{
-					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
-					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONST);
+					FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(meth.featureConstants.get(id), id);
+					this.addFeatureLocWithReason(constant, EnumReason.ANNOTATIONBUNDLE_NUMBERFEATURECONSTNONDUP);
 				}
 			}
 		}
 	}
 	
 	/**
-	 * Check method for number negations. If it exceeds the configuration value, add all featurelocations
+	 * Check method for number negations. If it exceeds the configuration value, add all feature constants
 	 * with the specific reason
 	 *
 	 * @param meth the method
@@ -282,17 +282,17 @@ public class Detector {
 		if (this.config.Method_NegationCount != -1)
 		{
 			if (meth.negationCount > this.config.Method_NegationCount)
-				for (UUID id : meth.featureLocations.keySet())
+				for (UUID id : meth.featureConstants.keySet())
 				{
-					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
-					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERNEGATIONS);
+					FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(meth.featureConstants.get(id), id);
+					this.addFeatureLocWithReason(constant, EnumReason.ANNOTATIONBUNDLE_NUMBERNEGATIONS);
 				}
 		}
 	}
 
 	/**
 	 * Check if the sum of nestings exceeds the code smell configuration value.
-	 * If yes, add all feature locations with the corresponding reason to the result.
+	 * If yes, add all feature constants with the corresponding reason to the result.
 	 *
 	 * @param meth the method
 	 */
@@ -300,17 +300,17 @@ public class Detector {
 		if (this.config.Method_NestingSum != -1)
 		{
 			if (meth.nestingSum >= this.config.Method_NestingSum)
-				for (UUID id : meth.featureLocations.keySet())
+				for (UUID id : meth.featureConstants.keySet())
 				{
-					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
-					this.addFeatureLocWithReason(loc, EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGSUM);
+					FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(meth.featureConstants.get(id), id);
+					this.addFeatureLocWithReason(constant, EnumReason.ANNOTATIONBUNDLE_NUMBERNESTINGSUM);
 				}
 		}
 	}
 	
 	/**
 	 * Check if the max nesting depth exceeds the code smell configuration value.
-	 * If yes, add all feature locations with the corresponding reason to the result.
+	 * If yes, add all feature constant with the corresponding reason to the result.
 	 *
 	 * @param meth the method
 	 */
@@ -318,32 +318,32 @@ public class Detector {
 		if (this.config.Method_NestingDepthMin != -1)
 		{
 				// check nesting via stacks and nesting depth
-				Stack<FeatureLocation> nestingStack = new Stack<FeatureLocation>();		
+				Stack<FeatureConstant> nestingStack = new Stack<FeatureConstant>();		
 				int beginNesting = -1;
 				
-				for (UUID id : meth.featureLocations.keySet())
+				for (UUID id : meth.featureConstants.keySet())
 				{
-					FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(meth.featureLocations.get(id), id);
+					FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(meth.featureConstants.get(id), id);
 					
 					// add the item instantly if the stack is empty, set the beginning nesting depth to the nd of the loc (nesting depth is file-based not method based)
 					if (nestingStack.isEmpty())
 					{
-						beginNesting = loc.nestingDepth;
-						nestingStack.push(loc);
+						beginNesting = constant.nestingDepth;
+						nestingStack.push(constant);
 					}
 					else
 					{
 						// current nesting in consideration with starting location
-						int curNesting = loc.nestingDepth - beginNesting;
+						int curNesting = constant.nestingDepth - beginNesting;
 						
 						// 0 is the beginning nesting degree, everything higher than zero means it is a nested location
 						if(curNesting > 0)
-							nestingStack.push(loc);
+							nestingStack.push(constant);
 						else
 						{
 							// calculate nestingdepth of bundle
 							int ndm = -1;
-							for (FeatureLocation current : nestingStack)
+							for (FeatureConstant current : nestingStack)
 								if ((current.nestingDepth - beginNesting) > ndm)
 									ndm = current.nestingDepth - beginNesting;
 							
@@ -364,7 +364,7 @@ public class Detector {
 				{
 					// calculate nestingdepth of bundle
 					int ndm = -1;
-					for (FeatureLocation current : nestingStack)
+					for (FeatureConstant current : nestingStack)
 						if ((current.nestingDepth - beginNesting) > ndm)
 							ndm = current.nestingDepth - beginNesting;
 					
@@ -386,12 +386,12 @@ public class Detector {
 	
 	
 	/**
-	 * Check if the feature location is bigger than the mean value of feature lofc
+	 * Check if the feature constant is bigger than the mean value of feature lofc
 	 * Indicates a large feature.
 	 *
-	 * @param loc the feature location to examine
+	 * @param loc the feature constant to examine
 	 */
-	private void checkForFeatureToFeatureRatio(FeatureLocation loc)
+	private void checkForFeatureToFeatureRatio(FeatureConstant loc)
 	{
 		// if the value is not set, it is -1000
 		if (this.config.Feature_MeanLofcRatio != -1000)
@@ -413,7 +413,7 @@ public class Detector {
 	 * @param feat the feature
 	 * @param loc the current location
 	 */
-	private void checkForFeatureToProjectRatio(Feature feat, FeatureLocation loc) 
+	private void checkForFeatureToProjectRatio(Feature feat, FeatureConstant loc) 
 	{
 		// value is set if it is not -1000
 		if (this.config.Feature_ProjectLocRatio != -1000)
@@ -428,29 +428,29 @@ public class Detector {
 	}
 	
 	/**
-	 * Check if the feature has more locations than ratio amount.
+	 * Check if the feature has more constants than ratio amount.
 	 * If yes, add all locs to the result with the corresponding reason.
 	 *
 	 * @param feat the feat
 	 */
-	private void checkForFeatureNoflToSum(Feature feat) 
+	private void checkForFeatureNoFeatureConstantsToSum(Feature feat) 
 	{
-		if (this.config.Feature_NoflToSumRatio != -1000)
+		if (this.config.Feature_NoFeatureConstantsToSumRatio != -1000)
 		{
 			// amount of nofls the feature has to exceed for a smell
-			double minNofl = FeatureExpressionCollection.amountOfFeatureLocs * this.config.Feature_NoflToSumRatio;
+			double minNofl = FeatureExpressionCollection.numberOfFeatureConstants * this.config.Feature_NoFeatureConstantsToSumRatio;
 			
-			if (feat.getLocs().size() > minNofl)
+			if (feat.getConstants().size() > minNofl)
 			{
-				for(FeatureLocation loc : feat.getLocs())
-					this.addFeatureLocWithReason(loc, EnumReason.SHOTGUNSURGERY_NOFLTOSUMNOFL);
+				for(FeatureConstant loc : feat.getConstants())
+					this.addFeatureLocWithReason(loc, EnumReason.SHOTGUNSURGERY_NOFCOSUMNOFC);
 			}
 		}
 	}
 
 	/**
 	 * Check if the feature exceeds the configuration value for compilation units.
-	 * If yes, add all locations with the corresponding reason to the result.
+	 * If yes, add all constants with the corresponding reason to the result.
 	 *
 	 * @param feat the feat
 	 */
@@ -460,7 +460,7 @@ public class Detector {
 		{
 			if (feat.GetAmountCompilationFiles() > this.config.Feature_NumberOfCompilUnits)
 			{
-				for(FeatureLocation loc : feat.getLocs())
+				for(FeatureConstant loc : feat.getConstants())
 					this.addFeatureLocWithReason(loc, EnumReason.SHOTGUNSURGERY_NUMBERCOMPILATIONUNITS);
 			}
 		}
@@ -469,20 +469,20 @@ public class Detector {
 	
 	
 	/**
-	 * Adds the feature location to the result list with the specified reason, or appends another reason if the location is already inside the result list.
+	 * Adds the feature constant to the result list with the specified reason, or appends another reason if the location is already inside the result list.
 	 *
-	 * @param loc the feature location to add
+	 * @param constant the feature constant to add
 	 * @param reason the reason
 	 */
-	private void addFeatureLocWithReason(FeatureLocation loc, EnumReason reason)
+	private void addFeatureLocWithReason(FeatureConstant constant, EnumReason reason)
 	{
-		if (this.featureResult.containsKey(loc))
-			this.featureResult.get(loc).add(reason);
+		if (this.featureResult.containsKey(constant))
+			this.featureResult.get(constant).add(reason);
 		else
 		{
 			ArrayList<EnumReason> enumReason = new ArrayList<EnumReason>();
 			enumReason.add(reason);
-			this.featureResult.put(loc, enumReason);
+			this.featureResult.put(constant, enumReason);
 		}
 	}
 	

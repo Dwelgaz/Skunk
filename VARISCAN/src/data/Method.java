@@ -1,5 +1,6 @@
 package data;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -24,7 +25,7 @@ public class Method
 	public int loc;
 	
 	/** The lines of feature code inside the method. */
-	public int lofc;
+	public long lofc;
 	
 	/** The amount of nestings in the method (1 per nesting) */
 	public int nestingSum;
@@ -36,14 +37,14 @@ public class Method
 	public ArrayList<Integer> loac;
 	private int processedLoac;
 	
-	/** The feature locations. */
-	public LinkedHashMap<UUID, String> featureLocations;
+	/** The feature constants. */
+	public LinkedHashMap<UUID, String> featureConstants;
 	
-	/** The number feature constants in the method. */
-	public int numberFeatureConstants;
+	/** The number feature constants in the method (non-duplicated). */
+	public int numberFeatureConstantsNonDup;
 	
-	/** The number feature occurences.*/
-	public int numberFeatureOccurences;
+	/** The number feature locations.*/
+	public int numberFeatureLocations;
 	
 	/** The number of negations in the method */
 	public int negationCount;
@@ -72,53 +73,53 @@ public class Method
 		// initialize loc
 		this.lofc = 0;
 		
-		this.featureLocations = new LinkedHashMap<UUID, String>();
+		this.featureConstants = new LinkedHashMap<UUID, String>();
 		this.loac = new ArrayList<Integer>();
 		
-		this.numberFeatureConstants = 0;
-		this.numberFeatureOccurences = 0;
+		this.numberFeatureConstantsNonDup = 0;
+		this.numberFeatureLocations = 0;
 		this.negationCount = 0;
 	}	
 	
 	/**
 	 * Adds the feature location if it is not already added.
 	 *
-	 * @param loc the loc
+	 * @param constant the loc
 	 */
-	public void AddFeatureLocation(FeatureLocation loc)
+	public void AddFeatureConstant(FeatureConstant constant)
 	{
-		if (!this.featureLocations.containsKey(loc.id))
+		if (!this.featureConstants.containsKey(constant.id))
 		{
 			// connect feature to the method
-			this.featureLocations.put(loc.id, loc.corresponding.Name);
-			loc.inMethod = this;
+			this.featureConstants.put(constant.id, constant.corresponding.Name);
+			constant.inMethod = this;
 			
 			// assign nesting depth values
-			if (loc.nestingDepth > this.nestingDepthMax)
-				this.nestingDepthMax = loc.nestingDepth;
+			if (constant.nestingDepth > this.nestingDepthMax)
+				this.nestingDepthMax = constant.nestingDepth;
 			
 				
 			// calculate lines of feature code (if the feature is longer than the method, use the method end)
-			if (loc.end > this.end)
-				this.lofc += this.end - loc.start + 1;
+			if (constant.end > this.end)
+				this.lofc += this.end - constant.start + 1;
 			else
-				this.lofc += loc.end - loc.start + 1;
+				this.lofc += constant.end - constant.start + 1;
 			
-			data.File file = FileCollection.GetFile((loc.filePath));
+			data.File file = FileCollection.GetFile((constant.filePath));
 			for (int current : file.emptyLines)
 			{
-				if (loc.end > this.end)
+				if (constant.end > this.end)
 				{
-					if (current > loc.start && current < this.end)
+					if (current > constant.start && current < this.end)
 						this.lofc--;
 				}
 				else
-					if (current > loc.start && current < loc.end)
+					if (current > constant.start && current < constant.end)
 						this.lofc--;		
 			}
 			
-			// add lines of visibile annotated code (amount of loc that is inside annotations) until end of feature location or end of method
-			for (int current = loc.start; current <= loc.end; current++)
+			// add lines of visibile annotated code (amount of loc that is inside annotations) until end of feature constant or end of method
+			for (int current = constant.start; current <= constant.end; current++)
 			{
 				if (!(this.loac.contains(current)) && !FileCollection.GetFile(this.filePath).emptyLines.contains(current))
 					this.loac.add(current);
@@ -134,9 +135,9 @@ public class Method
 	 *
 	 * @return the int
 	 */
-	public int GetFeatureLocationCount()
+	public int GetFeatureConstantCount()
 	{
-		return this.featureLocations.size();
+		return this.featureConstants.size();
 	}
 	
 	/**
@@ -154,40 +155,40 @@ public class Method
 	 *
 	 * @return the int
 	 */
-	public void SetNumberOfFeatureConstants()
+	public void SetNumberOfFeatureConstantsNonDup()
 	{
 		ArrayList<String> constants = new ArrayList<String>();
 		
-		for (UUID id : featureLocations.keySet())
+		for (UUID id : featureConstants.keySet())
 		{
-			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
-			if (!constants.contains(loc.corresponding.Name))
-				constants.add(loc.corresponding.Name);
+			FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(featureConstants.get(id), id);
+			if (!constants.contains(constant.corresponding.Name))
+				constants.add(constant.corresponding.Name);
 		}
 		
-		this.numberFeatureConstants = constants.size();
+		this.numberFeatureConstantsNonDup = constants.size();
 	}
 	
 	
 	/**
-	 * Gets the number of feature occurences. A feature occurence is a complete set of feature locations on one line.
+	 * Gets the number of feature locations. A feature location is a complete set of feature constants on one line.
 	 *
 	 * @return the number of feature occurences in the method
 	 */
-	public void SetNumberOfFeatureOccurences()
+	public void SetNumberOfFeatureLocations()
 	{
-		ArrayList<Integer> noOcc = new ArrayList<Integer>();
+		ArrayList<Integer> noLocs = new ArrayList<Integer>();
 		
 		// remember the starting position of each feature location, but do not add it twice
-		for (UUID id : featureLocations.keySet())
+		for (UUID id : featureConstants.keySet())
 		{
-			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
-			if (!noOcc.contains(loc.start))
-				noOcc.add(loc.start);
+			FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(featureConstants.get(id), id);
+			if (!noLocs.contains(constant.start))
+				noLocs.add(constant.start);
 		}
 		
 		this.processedLoac = this.loac.size();
-		this.numberFeatureOccurences = noOcc.size();
+		this.numberFeatureLocations = noLocs.size();
 	}
 	
 
@@ -200,10 +201,10 @@ public class Method
 	{
 		int result = 0;
 		
-		for (UUID id : featureLocations.keySet())
+		for (UUID id : featureConstants.keySet())
 		{
-			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
-			if (loc.notFlag)
+			FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(featureConstants.get(id), id);
+			if (constant.notFlag)
 				result++;
 		}
 		
@@ -220,16 +221,16 @@ public class Method
 		int minNesting = 5000;
 		
 		// add each nesting to the nesting sum
-		for (UUID id : featureLocations.keySet())
+		for (UUID id : featureConstants.keySet())
 		{
-			FeatureLocation loc = FeatureExpressionCollection.GetFeatureLocation(featureLocations.get(id), id);
-			res += loc.nestingDepth;
-			if (loc.nestingDepth < minNesting)
-				minNesting = loc.nestingDepth;
+			FeatureConstant constant = FeatureExpressionCollection.GetFeatureConstant(featureConstants.get(id), id);
+			res += constant.nestingDepth;
+			if (constant.nestingDepth < minNesting)
+				minNesting = constant.nestingDepth;
 		}
 		
 		// substract the complete minNesting depth (for each added location)
-		res -= this.featureLocations.size() * minNesting;
+		res -= this.featureConstants.size() * minNesting;
 		
 		this.nestingSum = res;
 	}

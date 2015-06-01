@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import data.FeatureExpressionCollection;
-import data.FeatureLocation;
+import data.FeatureConstant;
 import detection.EnumReason;
 
 public class AttributeOverview {
@@ -28,28 +28,28 @@ public class AttributeOverview {
 	}
 	
 	/**
-	 * Adds the feature location information to the attribute overview
+	 * Adds the feature constant information to the attribute overview
 	 *
-	 * @param loc the loc
+	 * @param constant the loc
 	 */
-	public void AddFeatureLocationInfo(FeatureLocation loc)
+	public void AddFeatureLocationInfo(FeatureConstant constant)
 	{
 		// add metrics
 		this.noFeatureLocs++;
-		this.lofc = loc.end - loc.start;
+		this.lofc = constant.end - constant.start;
 		
 		// add feature constant if not already part of it
-		if (!this.featureConstants.contains(loc.corresponding.Name))
-			this.featureConstants.add(loc.corresponding.Name);
+		if (!this.featureConstants.contains(constant.corresponding.Name))
+			this.featureConstants.add(constant.corresponding.Name);
 		
-		// add all lines per file to the data structure, that are part of the feature location... no doubling for loac calculation
-		if (!loacs.keySet().contains(loc.filePath))
-			loacs.put(loc.filePath, new ArrayList<Integer>());
+		// add all lines per file to the data structure, that are part of the feature constant... no doubling for loac calculation
+		if (!loacs.keySet().contains(constant.filePath))
+			loacs.put(constant.filePath, new ArrayList<Integer>());
 		
-		for (int i = loc.start; i <= loc.end; i++)
+		for (int i = constant.start; i <= constant.end; i++)
 		{
-			if (!loacs.get(loc.filePath).contains(i))
-				loacs.get(loc.filePath).add(i);
+			if (!loacs.get(constant.filePath).contains(i))
+				loacs.get(constant.filePath).add(i);
 		}
 	}
 	
@@ -62,13 +62,13 @@ public class AttributeOverview {
 		
 		// calculate percentages
 		float percentOfLoc = completeLoac * 100 / FeatureExpressionCollection.GetLoc();
-		float percentOfLocations = this.noFeatureLocs * 100 / FeatureExpressionCollection.amountOfFeatureLocs;
+		float percentOfLocations = this.noFeatureLocs * 100 / FeatureExpressionCollection.numberOfFeatureConstants;
 		float percentOfConstants = this.featureConstants.size() * 100 / FeatureExpressionCollection.GetFeatures().size();
 		
 		// Complete overview
 		String res = ">>> Overview "+ Reason +"\r\n";
-		res += "Number of feature constants: \t" + this.featureConstants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
-		res += "Number of feature locations: \t" + this.noFeatureLocs  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.amountOfFeatureLocs + " locations)\r\n";
+		res += "Number of features constants: \t" + this.featureConstants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
+		res += "Number of features: \t" + this.noFeatureLocs  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.numberOfFeatureConstants + " locations)\r\n";
 		res += "Lines of annotated Code: \t" + completeLoac + " (" + percentOfLoc + "% of " + FeatureExpressionCollection.GetLoc() + " LOC)\r\n";
 		res += "Lines of feature code: \t\t" + this.lofc + "\r\n\r\n";
 		

@@ -11,9 +11,8 @@ import java.util.List;
 
 import output.AnalyzedDataHandler;
 import output.ProcessedDataHandler;
-import data.Feature;
 import data.FeatureExpressionCollection;
-import data.FeatureLocation;
+import data.FeatureConstant;
 import data.FileCollection;
 import data.MethodCollection;
 import detection.DetectionConfig;
@@ -75,10 +74,11 @@ public class Program {
 		if (conf != null)
 		{
 			Detector detector = new Detector(conf);
-			HashMap<FeatureLocation, ArrayList<EnumReason>> res = (HashMap<FeatureLocation, ArrayList<EnumReason>>) detector.Perform();
+			HashMap<FeatureConstant, ArrayList<EnumReason>> res = (HashMap<FeatureConstant, ArrayList<EnumReason>>) detector.Perform();
 			
 			AnalyzedDataHandler presenter = new AnalyzedDataHandler(conf);
-			presenter.saveResults(res);
+			//presenter.SaveTextResults(res);
+			presenter.SaveCsvResults();
 		}
 	}
 	
@@ -93,8 +93,9 @@ public class Program {
 		// for easier handling, transform to list
 		List<String> input = Arrays.asList(args);
 		
+		
 		// get the path to the codesmell configuration
-		if (input.contains("--config"))
+		if (containsArgument(args, "--config"))
 		{
 			try 
 			{
@@ -117,13 +118,13 @@ public class Program {
 			}
 		}
 		
-		if (input.contains("--saveIntermediate"))
+		if (containsArgument(args, "--saveintermediate"))
 		{
 			saveIntermediate = true;
 		}
 		
 		// get the path of the source folder
-		if (input.contains("--source"))
+		if (containsArgument(args, "--source"))
 		{
 			try {
 				String path = input.get(input.indexOf("--source") + 1);
@@ -156,6 +157,24 @@ public class Program {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Checks if the arguments contain a specific option, while ignoring case
+	 *
+	 * @param args the args
+	 * @param option the options
+	 * @return true, the arguments contain the option
+	 */
+	private static boolean containsArgument(String[] args, String option)
+	{
+		for (String arg : args)
+		{
+			if (arg.equalsIgnoreCase(option))
+				return true;
+		}
+		
+		return false;
 	}
 
 }

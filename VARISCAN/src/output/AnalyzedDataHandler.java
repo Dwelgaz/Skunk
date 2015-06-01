@@ -1,6 +1,7 @@
 package output;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,41 +9,48 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.FileUtils;
 
+import data.Feature;
 import data.FeatureExpressionCollection;
-import data.FeatureLocation;
+import data.FeatureConstant;
+import data.FileCollection;
 import data.Method;
+import data.MethodCollection;
 import detection.DetectionConfig;
 import detection.EnumReason;
 
 public class AnalyzedDataHandler {
 
 	private DetectionConfig conf = null;
+	private String currentDate = "";
 	
-	/** A comparator that compares featurenames of feature locations. */
-	public final static Comparator<FeatureLocation> FEATURELOCATION_FEATURENAME_COMPARATOR = new Comparator<FeatureLocation>()
+	/** A comparator that compares featurenames of feature constants. */
+	public final static Comparator<FeatureConstant> FEATURECONSTANT_FEATURENAME_COMPARATOR = new Comparator<FeatureConstant>()
 	{
-		@Override public int compare(FeatureLocation f1, FeatureLocation f2)
+		@Override public int compare(FeatureConstant f1, FeatureConstant f2)
 		{
 			return f1.corresponding.Name.compareTo(f2.corresponding.Name);
 		}
 	};
 	
-	/** A comparator that compares the filepath of feature location*/
-	public final static Comparator<FeatureLocation> FEATURELOCATION_FILEPATH_COMPARATOR = new Comparator<FeatureLocation>()
+	/** A comparator that compares the filepath of feature constant*/
+	public final static Comparator<FeatureConstant> FEATURECONSTANT_FILEPATH_COMPARATOR = new Comparator<FeatureConstant>()
 	{
-		@Override public int compare(FeatureLocation f1, FeatureLocation f2)
+		@Override public int compare(FeatureConstant f1, FeatureConstant f2)
 		{
 			return f1.filePath.compareTo(f2.filePath);
 		}
 	};
 	
-	/** A comparator that compares startposition of feature locations. */
-	public final static Comparator<FeatureLocation> FEATURELOCATION_START_COMPARATOR = new Comparator<FeatureLocation>()
+	/** A comparator that compares startposition of feature constants. */
+	public final static Comparator<FeatureConstant> FEATURECONSTANT_START_COMPARATOR = new Comparator<FeatureConstant>()
 	{
-		@Override public int compare(FeatureLocation f1, FeatureLocation f2)
+		@Override public int compare(FeatureConstant f1, FeatureConstant f2)
 		{
 			if (f1.start > f2.start)
 				return 1;
@@ -53,10 +61,10 @@ public class AnalyzedDataHandler {
 		}
 	};
 	
-	/** A comparator that compares startposition of feature locations methods. */
-	public final static Comparator<FeatureLocation>  FEATURELOCATION_METHOD_COMPARATOR = new Comparator<FeatureLocation>()
+	/** A comparator that compares startposition of feature constants methods. */
+	public final static Comparator<FeatureConstant>  FEATURECONSTANT_METHOD_COMPARATOR = new Comparator<FeatureConstant>()
 	{
-		@Override public int compare(FeatureLocation f1, FeatureLocation f2)
+		@Override public int compare(FeatureConstant f1, FeatureConstant f2)
 		{
 			if (f1.inMethod == null)
 				return -1;
@@ -72,7 +80,39 @@ public class AnalyzedDataHandler {
 		}
 	};
 	
+	/** The comparator that compares the smell value of the csv records. */
+	public final static Comparator<Object[]> ABSmellComparator = new Comparator<Object[]>()
+	{
+		@Override public int compare(Object[] f1, Object[] f2)
+		{
+			float s1 = (float) f1[3];
+			float s2 = (float) f2[3];
+			
+			if (s1 > s2)
+				return -1;
+			else if (s1 < s2)
+				return 1;
+			else
+				return 0;
+		}
+	};
 	
+	/** The comparator that compares the smell value of the csv records. */
+	public final static Comparator<Object[]> LGSmellComparator = new Comparator<Object[]>()
+	{
+		@Override public int compare(Object[] f1, Object[] f2)
+		{
+			float s1 = (float) f1[1];
+			float s2 = (float) f2[1];
+			
+			if (s1 > s2)
+				return -1;
+			else if (s1 < s2)
+				return 1;
+			else
+				return 0;
+		}
+	};
 	
 	
 	/**
@@ -85,7 +125,15 @@ public class AnalyzedDataHandler {
 		this.conf = conf;
 	}
 	
-	public void saveResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	
+	
+	
+	
+	
+	
+	/**** TXT Start End Saving *****/
+	
+	public void SaveTextResults(HashMap<FeatureConstant, ArrayList<EnumReason>> results)
 	{			
 		// get the results of the complete detection process and the whole project
 		String overview = this.getOverviewResults(results);
@@ -101,7 +149,8 @@ public class AnalyzedDataHandler {
 		// get the results sorted per feature
 		String features = this.getFeatureSortedResults(results);
 		
-		String fileName = new SimpleDateFormat("yyyyMMddhhmm").format(new Date()) + "_detection_";
+		currentDate = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
+		String fileName = currentDate + "_detection_";
 		
 		try 
 		{
@@ -110,7 +159,7 @@ public class AnalyzedDataHandler {
 			FileUtils.write(new File(fileName + "files.txt"), files);
 			FileUtils.write(new File(fileName + "methods.txt"), methods);
 			FileUtils.write(new File(fileName + "features.txt"), features);
-			System.out.println("Result files saved to the working directory!");
+			System.out.println("Result files saved to the working directory...");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -122,13 +171,13 @@ public class AnalyzedDataHandler {
 	 * @param results the results
 	 * @return the attribute overview results
 	 */
-	private String getAttributeOverviewResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private String getAttributeOverviewResults(HashMap<FeatureConstant, ArrayList<EnumReason>> results)
 	{
 		String res = conf.toString() +"\r\n\r\n\r\n\r\n\r\n";
 
 		ArrayList<AttributeOverview> attributes = new ArrayList<AttributeOverview>();
 		
-		for (FeatureLocation key : results.keySet())
+		for (FeatureConstant key : results.keySet())
 		{
 			for (EnumReason reason : results.get(key))
 			{
@@ -162,20 +211,20 @@ public class AnalyzedDataHandler {
 	 * @param results the results
 	 * @return the location results
 	 */
-	private String getFileSortedRestults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private String getFileSortedRestults(HashMap<FeatureConstant, ArrayList<EnumReason>> results)
 	{
 		String res = conf.toString() + "\r\n\r\n\r\n\r\n\r\n\r\n";
 		
 		// sort the keys after featurename, filepath and start
-		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
-		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
+		ArrayList<FeatureConstant> sortedKeys = new ArrayList<FeatureConstant>(results.keySet());
+		Collections.sort(sortedKeys, new ComparatorChain<FeatureConstant>(FEATURECONSTANT_FILEPATH_COMPARATOR, FEATURECONSTANT_START_COMPARATOR));
 		
 		res += ">>> File-Sorted Results:\r\n";
 		
 		String currentPath = "";
 		
 		// print the the locations and reasons sorted after feature
-		for (FeatureLocation key : sortedKeys)
+		for (FeatureConstant key : sortedKeys)
 		{		
 			if (!key.filePath.equals(currentPath))
 			{
@@ -196,13 +245,13 @@ public class AnalyzedDataHandler {
 	 * @param results the detection results
 	 * @return the results per feature
 	 */
-	private String getFeatureSortedResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private String getFeatureSortedResults(HashMap<FeatureConstant, ArrayList<EnumReason>> results)
 	{
 		String res = conf.toString() + "\r\n\r\n\r\n\r\n\r\n";
 		
 		// sort the keys after featurename, filepath and start
-		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
-		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FEATURENAME_COMPARATOR, FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
+		ArrayList<FeatureConstant> sortedKeys = new ArrayList<FeatureConstant>(results.keySet());
+		Collections.sort(sortedKeys, new ComparatorChain<FeatureConstant>(FEATURECONSTANT_FEATURENAME_COMPARATOR, FEATURECONSTANT_FILEPATH_COMPARATOR, FEATURECONSTANT_START_COMPARATOR));
 		
 		res += ">>> Feature-Sorted Results";
 		
@@ -210,7 +259,7 @@ public class AnalyzedDataHandler {
 		String currentPath = "";
 		
 		// print the the locations and reasons sorted after feature
-		for (FeatureLocation key : sortedKeys)
+		for (FeatureConstant key : sortedKeys)
 		{
 			if (!key.corresponding.Name.equals(currentName))
 			{
@@ -236,59 +285,43 @@ public class AnalyzedDataHandler {
 	}
 	
 	/**
-	 * Sorts the results per Method and returns the smell metric of each method
+	 * Sorts the results per Method and returns it in a string per file/method/cnstant
 	 *
 	 * @param results the detection results
 	 * @return the results per feature
 	 */
-	private String getMethodSortedResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results)
+	private String getMethodSortedResults(HashMap<FeatureConstant, ArrayList<EnumReason>> results)
 	{
 		String res = conf.toString() + "\r\n\r\n\r\n\r\n\r\n";
-		ArrayList<FeatureLocation> sortedKeys = new ArrayList<FeatureLocation>(results.keySet());
-		Collections.sort(sortedKeys, new ComparatorChain<FeatureLocation>(FEATURELOCATION_FILEPATH_COMPARATOR, FEATURELOCATION_METHOD_COMPARATOR, FEATURELOCATION_START_COMPARATOR));
+		ArrayList<FeatureConstant> sortedKeys = new ArrayList<FeatureConstant>(results.keySet());
+		Collections.sort(sortedKeys, new ComparatorChain<FeatureConstant>(FEATURECONSTANT_FILEPATH_COMPARATOR, FEATURECONSTANT_METHOD_COMPARATOR, FEATURECONSTANT_START_COMPARATOR));
 		
 		res += ">>> Method-Sorted Results";
 		
 		Method currentMethod = null;
 		String currentPath = "";
 		
-		// print feature locations with reason per File and Method
-		for (FeatureLocation key : sortedKeys)
+		// print feature constants with reason per File and Method
+		for (FeatureConstant key : sortedKeys)
 		{
 			// don't display feature that are not in a method
 			if (key.inMethod == null)
 				continue;
-			
-			// flag to indicate that the smell value was already displayed
-			boolean presented = false;
-			
+						
 			if (!key.filePath.equals(currentPath))
 			{
-				res += this.GetMethodSmellValue(currentMethod);
-				presented = true;
-				
 				currentPath = key.filePath;
 				res += "\r\n\r\nFile: " + currentPath;
 			}
 			
 			if (!key.inMethod.equals(currentMethod))
 			{
-				if (!presented)
-				{
-					res += this.GetMethodSmellValue(currentMethod);
-					presented = false;
-				}
-				
 				currentMethod = key.inMethod;
 				res += "\r\nMethod: " + currentMethod.functionSignatureXml + "\r\n";
 				res += "Start\t\tEnd\t\tReason\r\n";
 			}
 				
 				res += key.start + "\t\t" + key.end + "\t\t" + results.get(key).toString() + "\r\n";
-				// wFeatOcc* ((Loac/Loc) *NoFeatOcc) + wFeatLoc * (NoFeatLoc/NoFeatOcc) + wNestingSum * (NestingSum/NoFeatOcc)
-				
-			if (sortedKeys.indexOf(key) == sortedKeys.size() - 1)
-				res += this.GetMethodSmellValue(currentMethod);
 		}
 		
 		return res;
@@ -300,14 +333,14 @@ public class AnalyzedDataHandler {
 	 *
 	 * @param results the result hasmap from the detection process
 	 */
- 	private String getOverviewResults(HashMap<FeatureLocation, ArrayList<EnumReason>> results) 
+ 	private String getOverviewResults(HashMap<FeatureConstant, ArrayList<EnumReason>> results) 
 	{
  		String res = conf.toString();
 		// amount of feature constants
 		ArrayList<String> constants = new ArrayList<String>();
 		float percentOfConstants = 0;
 		
-		// amount of feature locations
+		// amount of feature constants
 		int countLocations = results.entrySet().size();
 		float percentOfLocations = 0;
 		
@@ -319,7 +352,7 @@ public class AnalyzedDataHandler {
 		int completeLoac = 0;
 		float percentOfLoc = 0;
 		
-		for (FeatureLocation loc : results.keySet())
+		for (FeatureConstant loc : results.keySet())
 		{
 			// get the amount of feature constants by saving each feature constant name
 			if (!constants.contains(loc.corresponding.Name))
@@ -328,7 +361,7 @@ public class AnalyzedDataHandler {
 			// add lines of code to result
 			completeLofc += loc.end-loc.start;
 			
-			// add all lines per file to the data structure, that are part of the feature location... no doubling for loac calculation
+			// add all lines per file to the data structure, that are part of the feature constant... no doubling for loac calculation
 			if (!loacs.keySet().contains(loc.filePath))
 				loacs.put(loc.filePath, new ArrayList<Integer>());
 			
@@ -345,62 +378,319 @@ public class AnalyzedDataHandler {
 		
 		// calculate percentages
 		percentOfLoc = completeLoac * 100 / FeatureExpressionCollection.GetLoc();
-		percentOfLocations = countLocations * 100 / FeatureExpressionCollection.amountOfFeatureLocs;
+		percentOfLocations = countLocations * 100 / FeatureExpressionCollection.numberOfFeatureConstants;
 		percentOfConstants = constants.size() * 100 / FeatureExpressionCollection.GetFeatures().size();
 		
 		// Complete overview
 		res += "\r\n\r\n\r\n>>> Complete Overview\r\n";
-		res += "Number of feature constants: \t" + constants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
-		res += "Number of feature locations: \t" + countLocations  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.amountOfFeatureLocs + " locations)\r\n";
+		res += "Number of features constants: \t" + constants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
+		res += "Number of feature: \t" + countLocations  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.numberOfFeatureConstants + " locations)\r\n";
 		res += "Lines of annotated Code: \t" + completeLoac + " (" + percentOfLoc + "% of " + FeatureExpressionCollection.GetLoc() + " LOC)\r\n";
 		res += "Lines of feature code: \t\t" + completeLofc + "\r\n";
+		
 		res += "Mean LOFC per feature: \t\t" + FeatureExpressionCollection.GetMeanLofc() + "\r\n\r\n\r\n";
 		
 		return res;
 	}
  	
+ 	/**** TXT Start End Saving *****/
  	
  	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	
+ 	/**** CSV Smell Value Saving ****/
+ 	
+ 	public void SaveCsvResults()
+ 	{
+ 		FileWriter writer = null;
+ 		CSVPrinter csv = null;
+ 		
+ 		// ensure consistent filenaming
+ 		if (this.currentDate.equals(""))
+ 			currentDate = new SimpleDateFormat("yyyyMMddhhmm").format(new Date());
+ 		String fileName = this.currentDate + "_metrics_";
+ 		
+ 		this.createMethodCSV(fileName + "methods.csv", writer, csv);
+ 		this.createFeatureCSV(fileName +"features.csv", writer, csv);
+ 		this.createFileCSV(fileName + "files.csv" , writer, csv);
+ 		
+ 		System.out.println("Result files saved to the working directory...");
+ 	}
+
+ 	/**
+	  * Creates the file metric csv.
+	  *
+	  * @param fileName the file name
+	  * @param writer the writer
+	  * @param csv the csv printer
+	  */
+	private void createFileCSV(String fileName, FileWriter writer, CSVPrinter csv)
+ 	{
+ 		try
+ 		{
+ 			writer = new FileWriter(fileName);
+ 			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
+ 		
+ 			// add the header for the csv file
+ 	 		Object [] FileHeader = {"File", "LOC", "LOAC", "LOFC", "NOFC_Dup", "NOFL", "NONEST"};
+ 			csv.printRecord(FileHeader);
+ 			
+ 			// calculate values and add records
+ 			List<Object[]> fileData = new ArrayList<Object[]>();
+ 			for (data.File file : FileCollection.Files)
+ 				fileData.add(this.createFileRecord(file));
+ 			
+ 			// sort after smellvalue
+ 			//Collections.sort(fileData, new ComparatorChain<Object[]>(LGSmellComparator));
+ 			
+ 			for (Object[] record : fileData)
+ 				csv.printRecord(record);
+ 		}
+ 		catch (Exception e) {
+            System.out.println("Error in CsvFileWriter !!!");
+            e.printStackTrace();
+        } 
+ 		finally 
+ 		{
+            try 
+            {
+                writer.flush();
+                writer.close();
+                csv.close();
+            } catch (IOException e) {
+                System.out.println("Error while flushing/closing fileWriter/csvPrinter !!!");
+                e.printStackTrace();
+            }
+        }
+ 	}
+ 	
+ 	/**
+	  * Creates the file csv record
+	  *
+	  * @param file the file
+	  * @return the object[] a csv record as array
+	  */
+	private Object[] createFileRecord(data.File file)
+ 	{
+ 		Object[] result = new Object[7];
+ 		result[0] = file.filePath;
+ 		result[1] = file.loc;
+ 		result[2] = file.GetLinesOfAnnotatedCode();
+ 		result[3] = file.lofc;
+ 		result[4] = file.GetFeatureConstantCount();
+ 		result[5] = file.numberOfFeatureLocations;
+ 		result[6] = file.nestingSum;
+ 		
+ 		return result;
+ 	}
+ 	
+ 	/**
+	 * Creates the method csv.
+	 *
+	 * @param writer the writer
+	 * @param csv the csv
+	 */
+	private void createFeatureCSV(String fileName, FileWriter writer, CSVPrinter csv) {
+		try
+ 		{
+ 			writer = new FileWriter(fileName);
+ 			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
+ 		
+ 			// add the header for the csv file
+ 	 		Object [] FeatureHeader = {"Name", "LGSmell", "SSSmell ","ConstantsSmell", "LOFCSmell", "CUSmell", "NOFC", "MAXNOFC", "LOFC", "MEANLOFC"};
+ 			csv.printRecord(FeatureHeader);
+ 			
+ 			// calculate values and add records
+ 			List<Object[]> featureData = new ArrayList<Object[]>();
+ 			for (Feature feat : FeatureExpressionCollection.GetFeatures())
+ 				featureData.add(this.createFeatureRecord(feat));
+ 			
+ 			// sort after smellvalue
+ 			Collections.sort(featureData, new ComparatorChain<Object[]>(LGSmellComparator));
+ 			
+ 			for (Object[] record : featureData)
+ 				csv.printRecord(record);
+ 		}
+ 		catch (Exception e) {
+            System.out.println("Error in CsvFileWriter !!!");
+            e.printStackTrace();
+        } 
+ 		finally 
+ 		{
+            try 
+            {
+                writer.flush();
+                writer.close();
+                csv.close();
+            } catch (IOException e) {
+                System.out.println("Error while flushing/closing fileWriter/csvPrinter !!!");
+                e.printStackTrace();
+            }
+        }
+	}
+ 	
+ 	/**
+	  * Creates the feature csv record.
+	  *
+	  * @param feat the feat
+	  * @return the object[]
+	  */
+	 private Object[] createFeatureRecord(Feature feat)
+ 	{
+ 		// # featureConstants/#TotalLocations
+ 		float constSmell = ((float) feat.getConstants().size()) / ((float) FeatureExpressionCollection.numberOfFeatureConstants);
+ 		
+ 		// LOFC/TotalLoc
+ 		float lofcSmell = ((float)feat.getLofc()) / ((float) FeatureExpressionCollection.GetMeanLofc());
+ 		
+ 		// CompilUnit/MaxCompilUnits
+ 		float compilUnitsSmell = ((float) feat.compilationFiles.size()) / ((float) FileCollection.Files.size());
+ 		
+ 		float sumLG = constSmell + lofcSmell;
+ 		float sumSS = constSmell + compilUnitsSmell;
+ 		
+ 		Object[] result = new Object[10];
+ 		result[0] = feat.Name;
+ 		result[1] = sumLG;
+ 		result[2] = sumSS;
+ 		result[3] = constSmell;
+ 		result[4] = lofcSmell;
+ 		result[5] = compilUnitsSmell;
+ 		
+ 		result[6] = feat.getConstants().size();
+ 		result[7] = FeatureExpressionCollection.numberOfFeatureConstants;
+ 		result[8] = feat.getLofc();
+ 		result[9] = FeatureExpressionCollection.GetMeanLofc();
+ 		
+ 		return result;
+ 	}
+	
+	/**
+	 * Creates the method csv.
+	 *
+	 * @param writer the writer
+	 * @param csv the csv
+	 */
+	private void createMethodCSV(String fileName, FileWriter writer, CSVPrinter csv) {
+		try
+ 		{
+ 			writer = new FileWriter(fileName);
+ 			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
+ 		
+ 			// add the header for the csv file
+ 	 		Object [] MethodHeader = {"File","Start", "Method","ABSmell","LocationSmell","ConstantsSmell", "NestingSmell", "LOC", "LOAC", "LOFC", "NOLC", "NOFC_Dup", "NONEST"};
+ 			csv.printRecord(MethodHeader);
+ 			
+ 			// calculate values and add records
+ 			List<Object[]> methodData = new ArrayList<Object[]>();
+ 			for (List<Method> methods : MethodCollection.methodsPerFile.values())
+ 				for (Method meth : methods)
+ 					methodData.add(createMethodRecord(meth));
+ 			
+ 			// sort after smellvalue
+ 			Collections.sort(methodData, new ComparatorChain<Object[]>(ABSmellComparator));
+ 			
+ 			for (Object[] record : methodData)
+ 				csv.printRecord(record);
+ 		}
+ 		catch (Exception e) {
+            System.out.println("Error in CsvFileWriter !!!");
+            e.printStackTrace();
+        } 
+ 		finally 
+ 		{
+            try 
+            {
+                writer.flush();
+                writer.close();
+                csv.close();
+            } catch (IOException e) {
+                System.out.println("Error while flushing/closing fileWriter/csvPrinter !!!");
+                e.printStackTrace();
+            }
+        }
+	}
  	
  	
  	/**
-	 * Gets the method smell value and adds it to the result
-	 *
-	 * @param currentMethod the current method
-	 */
-	private String GetMethodSmellValue(Method currentMethod) 
+	  * GCalculate the smell value of the current method and return data record as list
+	  *
+	  * @param currentMethod the current method
+	  * @return the list the data record for the csv file
+	  */
+	private Object[] createMethodRecord(Method currentMethod) 
 	{
-		String res = "";
+		// calculate smell values
+		// Loac/Loc * #FeatLocs
+		float featLocSmell = conf.Method_NumberOfFeatureLocations_Weight * (((float) currentMethod.GetLinesOfAnnotatedCode() / (float) currentMethod.loc) * (float) currentMethod.numberFeatureLocations);;
 		
-		// show method smell value
-		if (currentMethod != null)
-		{
-			float featOccSmell = 0;
-			float featLocSmell = 0;
-			float nestSumSmell = 0;
-			
-			if (conf.Method_NumberOfFeatureOccurences != -1)
-			{
-				featOccSmell = conf.Method_NumberOfFeatureOccurences_Weight * (((float) currentMethod.GetLinesOfAnnotatedCode() / (float) currentMethod.loc) * (float) currentMethod.numberFeatureOccurences);
-				res += "Loac/Loc * #FeatOccurcens = " + featOccSmell + "\r\n";
-			}
-			if (conf.Method_NumberOfFeatureLocs != -1)
-			{
-				featLocSmell = conf.Method_NumberOfFeatureLocs_Weight * ((float) currentMethod.GetFeatureLocationCount() / (float) currentMethod.numberFeatureOccurences);
-				res += "#FeatLocations/#FeatOccurences = " + featLocSmell + "\r\n";
-			}
-			if (conf.Method_NestingSum != -1)
-			{
-				nestSumSmell = conf.Method_NestingSum_Weight * ((float) currentMethod.nestingSum / (float) currentMethod.numberFeatureOccurences);
-				res += "Loac/Loc * #FeatOccurcens = " + nestSumSmell + "\r\n";
-			}
-			
-			float sum = (featOccSmell + featLocSmell + nestSumSmell);
-			
-			res += "Sum = " + sum + "\r\n\r\n"; 
-		}
+		// #Constants/#FeatLocs
+		float featConstSmell = conf.Method_NumberOfFeatureConstants_Weight * ((float) currentMethod.GetFeatureConstantCount() / (float) currentMethod.numberFeatureLocations);;
 		
-		return res;
+		// Loac/Loc * #FeatLocs
+		float nestSumSmell = conf.Method_NestingSum_Weight * ((float) currentMethod.nestingSum / (float) currentMethod.numberFeatureLocations);;
+		float sum = (featLocSmell + featConstSmell + nestSumSmell);
+	
+		Object[] result = new Object[13];
+		
+		// File Start Method
+		result[0] = currentMethod.filePath;
+		result[1] = currentMethod.start;
+		result[2] = currentMethod.functionSignatureXml;
+		
+		// SmellValue, LocationSmell, ConstantSmell, NestingSmell
+		result[3] = sum;
+		result[4] = featLocSmell;
+		result[5] = featConstSmell;
+		result[6] = nestSumSmell;
+		
+		// Loc Loac Lofc NoLocs NoConst NoNestings
+		result[7] = currentMethod.loc;
+		result[8] = currentMethod.GetLinesOfAnnotatedCode();
+		result[9] = currentMethod.lofc;
+		result[10] = currentMethod.numberFeatureLocations;
+		result[11] = currentMethod.GetFeatureConstantCount();
+		result[12] = currentMethod.nestingSum;
+		
+		return result;
+
+//		String res = "";
+//		
+//		// show method smell value
+//		if (currentMethod != null)
+//		{
+//			
+//			if (conf.Method_NumberOfFeatureLocations != -1)
+//			{
+//				featLocSmell = conf.Method_NumberOfFeatureLocations_Weight * (((float) currentMethod.GetLinesOfAnnotatedCode() / (float) currentMethod.loc) * (float) currentMethod.numberFeatureLocations);
+//				res += "Loac/Loc * #FeatLocs = " + featLocSmell + "\r\n";
+//			}
+//			if (conf.Method_NumberOfFeatureConstants != -1)
+//			{
+//				featConstSmell = conf.Method_NumberOfFeatureConstants_Weight * ((float) currentMethod.GetFeatureConstantCount() / (float) currentMethod.numberFeatureLocations);
+//				res += "#FeatConstants/#FeatLocs = " + featConstSmell + "\r\n";
+//			}
+//			if (conf.Method_NestingSum != -1)
+//			{
+//				nestSumSmell = conf.Method_NestingSum_Weight * ((float) currentMethod.nestingSum / (float) currentMethod.numberFeatureLocations);
+//				res += "Loac/Loc * #FeatLocs = " + nestSumSmell + "\r\n";
+//			}
+//			
+//			float sum = (featLocSmell + featConstSmell + nestSumSmell);
+//			
+//			res += "Sum = " + sum + "\r\n\r\n"; 
+//		}
+//		
+//		return res;
 	}
+	
+	
+	/**** CSV Start End Saving *****/
 }
 

@@ -14,10 +14,10 @@ HowTo:
 		--SaveIntermediate
 		
 Examples:
-	--source examplePath --saveIntermediate
+	--source examplePath --saveintermediate
 		The cppstats and SrcMl files will be processed and the processed data will be saved to the working directory
 	
-	--source examplePath --SaveIntermediate --config examplePath2
+	--source examplePath --saveintermediate --config examplePath2
 		The cppstats and SrcML files will be processed and saved to the working directoy for later used.
 		Afterwards the detection will be performed with the given configuration. A result file will be saved to the working directory.
 		

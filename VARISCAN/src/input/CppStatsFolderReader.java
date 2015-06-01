@@ -38,7 +38,7 @@ public class CppStatsFolderReader {
 		System.out.println("Processing CppStats CSV files in folder " + _cppStatsFolder + " ...");
 		
 		//this.getFeatureNames(new File(this._cppStatsFolder + "/merged_scattering_degrees.csv"));
-		this.getFeatureLocations(new File(this._cppStatsFolder + "/cppstats_featurelocations.csv"));
+		this.getFeatureConstants(new File(this._cppStatsFolder + "/cppstats_featurelocations.csv"));
 		this.getLOCProject(new File(this._cppStatsFolder + "/cppstats.csv"));
 		
 		System.out.println("... CppStats processing done!");
@@ -75,16 +75,16 @@ public class CppStatsFolderReader {
 //	}
 
 	/**
-	 * Get feature locations and lofc from file "cppstats_featurelocations.csv"
+	 * Get feature constants and lofc from file "cppstats_featurelocations.csv"
 	 *
 	 * @param csvFile the csv file
 	 */
-	private void getFeatureLocations(File csvFile)
+	private void getFeatureConstants(File csvFile)
 	{
 		System.out.print("... getting feature position metrics  ...");
 		try 
 		{
-			Stack<CppStatsFeatureLocation> locs = new Stack<CppStatsFeatureLocation>();
+			Stack<CppStatsFeatureConstant> constants = new Stack<CppStatsFeatureConstant>();
 			CSVParser parser = CSVParser.parse(csvFile, Charset.defaultCharset(), CSVFormat.DEFAULT);
 			
 			for (CSVRecord rec : parser)
@@ -109,46 +109,46 @@ public class CppStatsFolderReader {
 					String entry = rec.get(4);
 					
 					// if file changes, empty stack and save all information
-					if ((locs.size() > 0) && (!locs.peek().filePath.equals(filePath)))
+					if ((constants.size() > 0) && (!constants.peek().filePath.equals(filePath)))
 					{
-						while (locs.size() > 0)
-							locs.pop().SaveFeatureLocationInformation(locs.size() + 1);
+						while (constants.size() > 0)
+							constants.pop().SaveFeatureConstantInformation(constants.size() + 1);
 					}
 					
-					// if stack is empty, add featureLocation without parent
-					if (locs.size() == 0)
+					// if stack is empty, add feature constant without parent
+					if (constants.size() == 0)
 					{
-						CppStatsFeatureLocation fl = new CppStatsFeatureLocation(entry, filePath, type, start, end, null);
-						if (fl.featureExpressions.size() != 0)
-							locs.push(fl);
+						CppStatsFeatureConstant constant = new CppStatsFeatureConstant(entry, filePath, type, start, end, null);
+						if (constant.featureExpressions.size() != 0)
+							constants.push(constant);
 					}
 					else
 					{
 						// if end of top element is bigger than start, the current element is nested in the top element --> push on stack			
-						if (locs.peek().end > start)
+						if (constants.peek().end > start)
 						{
-							CppStatsFeatureLocation fl = new CppStatsFeatureLocation(entry, filePath, type, start, end, locs.peek());
-							if (fl.featureExpressions.size() != 0)
-								locs.push(fl);
+							CppStatsFeatureConstant constant = new CppStatsFeatureConstant(entry, filePath, type, start, end, constants.peek());
+							if (constant.featureExpressions.size() != 0)
+								constants.push(constant);
 						}
 						else
 						{
-							// save feature location if the endline of the top element is lower as the curent start location
-							while ((locs.size() > 0) && (locs.peek().end <= start))
-								locs.pop().SaveFeatureLocationInformation(locs.size() + 1);
+							// save feature constant if the endline of the top element is lower as the curent start location
+							while ((constants.size() > 0) && (constants.peek().end <= start))
+								constants.pop().SaveFeatureConstantInformation(constants.size() + 1);
 							
-							// item has to be put on stack, use top as reference for current featureloc, else push first element
-							if (locs.size() > 0)
+							// item has to be put on stack, use top as reference for current feature constant, else push first element
+							if (constants.size() > 0)
 							{
-								CppStatsFeatureLocation fl = new CppStatsFeatureLocation(entry, filePath, type, start, end, locs.peek());
+								CppStatsFeatureConstant fl = new CppStatsFeatureConstant(entry, filePath, type, start, end, constants.peek());
 								if (fl.featureExpressions.size() != 0)
-									locs.push(fl);
+									constants.push(fl);
 							}
 							else
 							{
-								CppStatsFeatureLocation fl = new CppStatsFeatureLocation(entry, filePath, type, start, end, null);
+								CppStatsFeatureConstant fl = new CppStatsFeatureConstant(entry, filePath, type, start, end, null);
 								if (fl.featureExpressions.size() != 0)
-									locs.push(fl);
+									constants.push(fl);
 							}
 						}
 					}
@@ -156,8 +156,8 @@ public class CppStatsFolderReader {
 			}
 			
 			// if there is still an element
-			while (locs.size() > 0)
-				locs.pop().SaveFeatureLocationInformation(locs.size() + 1);
+			while (constants.size() > 0)
+				constants.pop().SaveFeatureConstantInformation(constants.size() + 1);
 			
 		} catch (IOException e) {
 			e.printStackTrace();

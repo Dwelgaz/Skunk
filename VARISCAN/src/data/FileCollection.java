@@ -71,7 +71,7 @@ public class FileCollection
 		{
 			file.SetNegationCount();
 			file.SetNumberOfFeatureConstants();
-			file.SetNumberOfFeatureOccurences();
+			file.SetNumberOfFeatureLocations();
 			file.SetNestingSum();
 		}
 	}

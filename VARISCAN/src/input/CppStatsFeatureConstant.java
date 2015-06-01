@@ -6,12 +6,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import data.FeatureExpressionCollection;
-import data.FeatureLocation;
+import data.FeatureConstant;
 
 /**
- * The Class FeatureLocation. Used for measuring lofc.
+ * The Class CppStatsFeatureConstant.
  */
-public class CppStatsFeatureLocation 
+public class CppStatsFeatureConstant 
 {
 	public List<String> featureExpressions;
 	public List<Boolean> notFlags;
@@ -23,7 +23,7 @@ public class CppStatsFeatureLocation
 	public int start;
 	public int end;
 	
-	public CppStatsFeatureLocation parent;
+	public CppStatsFeatureConstant parent;
 	
 	/**
 	 * Instantiates a new feature location.
@@ -35,7 +35,7 @@ public class CppStatsFeatureLocation
 	 * @param end the end
 	 * @param parent the parent
 	 */
-	public CppStatsFeatureLocation(String entry, String filePath, String type, int start, int end, CppStatsFeatureLocation parent)
+	public CppStatsFeatureConstant(String entry, String filePath, String type, int start, int end, CppStatsFeatureConstant parent)
 	{
 		this.filePath = filePath;
 		this.type = type;
@@ -57,29 +57,29 @@ public class CppStatsFeatureLocation
 	}
 
 	/**
-	 * Save this feature location information to the feature expression collection
+	 * Save this feature constant information to the feature expression collection
 	 */
-	public void SaveFeatureLocationInformation(int stackSize)
+	public void SaveFeatureConstantInformation(int stackSize)
 	{
 		// stackSize 1 means nesting depth of 0;
 		stackSize--;
 		
-		List<FeatureLocation> create = new LinkedList<FeatureLocation>();
+		List<FeatureConstant> create = new LinkedList<FeatureConstant>();
 		
 		// search for the corresponding feature expression and save information
 		for (String feature : this.featureExpressions)
 		{
 			// end-1 = #endif does not belong to lines of code????
-			FeatureLocation loc = new FeatureLocation(this.filePath, this.start, this.end, stackSize, this.notFlags.get(this.featureExpressions.indexOf(feature)));
-			FeatureExpressionCollection.GetFeature(feature).AddFeatureLocation(loc);
+			FeatureConstant constant = new FeatureConstant(this.filePath, this.start, this.end, stackSize, this.notFlags.get(this.featureExpressions.indexOf(feature)));
+			FeatureExpressionCollection.GetFeature(feature).AddFeatureLocation(constant);
 			
 			// remember created locations for combinations
-			create.add(loc);
+			create.add(constant);
 		}
 		
-		// set combined feature locations
-		for (FeatureLocation current : create)
-			for (FeatureLocation other : create)
+		// set combined feature constants
+		for (FeatureConstant current : create)
+			for (FeatureConstant other : create)
 			{
 				if (other != current)
 					current.combinedWith.add(other.id);
@@ -141,7 +141,7 @@ public class CppStatsFeatureLocation
 	 *
 	 * @param parent the parent
 	 */
-	private void removeFeaturesFromParents(CppStatsFeatureLocation nextParent)
+	private void removeFeaturesFromParents(CppStatsFeatureConstant nextParent)
 	{
 		// get features that are in both collection
 		List<String> toRemove = new LinkedList<String>();

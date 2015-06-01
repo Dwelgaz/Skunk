@@ -17,7 +17,7 @@ public class FeatureExpressionCollection
 	private static int _count;
 	private static int _loc;
 	private static int _meanLofc;
-	public static int amountOfFeatureLocs;
+	public static int numberOfFeatureConstants;
 	
 	/**
 	 * Gets the count of features.
@@ -42,7 +42,7 @@ public class FeatureExpressionCollection
 	/**
 	 * Gets the amount of lines of code.
 	 *
-	 * @return the amount of features in the collection
+	 * @return the amount of loc
 	 */
 	public static int GetLoc()
 	{
@@ -99,12 +99,19 @@ public class FeatureExpressionCollection
 		return newFeature;
 	}
 	
-	public static FeatureLocation GetFeatureLocation(String name, UUID id)
+	/**
+	 * Gets the feature constant of the specified feature
+	 *
+	 * @param name the name
+	 * @param id the id of the constant
+	 * @return the feature constant
+	 */
+	public static FeatureConstant GetFeatureConstant(String name, UUID id)
 	{
 		for (Feature feature : _features)
 		{
-			if (feature.locs.containsKey(id))
-				return feature.locs.get(id);
+			if (feature.constants.containsKey(id))
+				return feature.constants.get(id);
 		}
 		return null;
 	}
@@ -127,7 +134,7 @@ public class FeatureExpressionCollection
 		_features = new ArrayList<Feature>();
 		_count = 0;
 		_loc = 0;
-		amountOfFeatureLocs = 0;
+		numberOfFeatureConstants = 0;
 	}
 	
 	/**

@@ -16,7 +16,7 @@
 
 ## A ratio that defines the amount of feature locations to the total amount of feature locations.
 ## Example: NoflToSumRatio=0.1; Total NOFL=500 --> All features with more than 50 feature locations
-# Feature_NoflToSumRatio=-1000
+# Feature_NoFeatureConstantsRatio=-1000
 
 ## A threshold that defines in how many compilation units, a feature has to have at least one feature location.
 ## Example: NumberOfCompilUnits=5; Features with 5 different feature locations if 5 compilation units
@@ -35,11 +35,11 @@
 
 ## A threshold that defines how much feature locations must be within a method
 ## Example: NumberOfFeatureLocs=5 --> All feature locations within a method that combined are more than 5 different feature locations.
-#Method_NumberOfFeatureLocs=-1
+#Method_NumberOfFeatureConstants=-1
 
 ## A threshold that defines how much feature constants must be within a method
 ## Example: NumberOfFeatureConstants=5 --> All feature locations within a method that combined are more than 5 different feature constants.
-#Method_NumberOfFeatureConstants=-1
+#Method_NumberOfFeatureConstantsNonDup=-1
 
 ## A threshold that defines how much nesting must exist inside a method. Each nesting is counted per feature location.
 ## Example:
@@ -51,7 +51,7 @@ Method_NestingDepthMin=1
 
 ## A threshold that defines how much feature occurnces must be within the method
 ## Example: NumberOfFeatureOccurences=3 --> A method with 3 lines of code with a ifdef annonation
-Method_NumberOfFeatureOccurences=1
+Method_NumberOfFeatureOLocations=1
 
 ## A threshold that defines how much negations must exist in a method
 ## Example:

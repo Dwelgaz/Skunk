@@ -18,8 +18,8 @@ public class Feature implements Comparable<Feature>{
 	/** The lines of feature code. */
 	private int _lofc;
 	
-	/** The annotation locations*/
-	public HashMap<UUID, FeatureLocation> locs;
+	/** The feature constants that are part of the feature*/
+	public HashMap<UUID, FeatureConstant> constants;
 	
 	/** nesting Depth informations */
 	public int minNestingDepth;
@@ -43,13 +43,13 @@ public class Feature implements Comparable<Feature>{
 	}
 	
 	/**
-	 * Gets all locations of the feature
+	 * Gets all constants of the feature
 	 *
 	 * @return the locs
 	 */
-	public List<FeatureLocation> getLocs()
+	public List<FeatureConstant> getConstants()
 	{
-		List<FeatureLocation> locs = new LinkedList(this.locs.values());
+		List<FeatureConstant> locs = new LinkedList(this.constants.values());
 		return locs;
 	}
 	
@@ -61,7 +61,7 @@ public class Feature implements Comparable<Feature>{
 	public Feature(String name)
 	{
 		this.Name = name;
-		this.locs = new HashMap<UUID, FeatureLocation>();
+		this.constants = new HashMap<UUID, FeatureConstant>();
 		this.compilationFiles = new ArrayList<String>();
 		
 		this.maxNestingDepth = -1;
@@ -69,17 +69,17 @@ public class Feature implements Comparable<Feature>{
 	}
 
 	/**
-	 * Adds the feature location and increases lines of feature code.
+	 * Adds the feature constant and increases lines of feature code.
 	 *
 	 * @param loc the loc
 	 */
-	public void AddFeatureLocation(FeatureLocation loc)
+	public void AddFeatureLocation(FeatureConstant loc)
 	{
-		// connect location with this feature (both directions)
+		// connect constant with this feature (both directions)
 		loc.corresponding = this;
 		
 		// set loc for the feature
-		this.locs.put(loc.id, loc);
+		this.constants.put(loc.id, loc);
 		this._lofc += loc.end - loc.start + 1;
 		
 		data.File file = FileCollection.GetFile((loc.filePath));
@@ -103,7 +103,7 @@ public class Feature implements Comparable<Feature>{
 			this.compilationFiles.add(loc.filePath);
 		
 		// count loc in feature collection
-		FeatureExpressionCollection.amountOfFeatureLocs++;
+		FeatureExpressionCollection.numberOfFeatureConstants++;
 	}
 
 	/**

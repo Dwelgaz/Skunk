@@ -6,9 +6,9 @@ import java.util.UUID;
 import org.w3c.dom.Node;
 
 /**
- * The Class FeatureLocation. Saves location information for each feature occurence
+ * The Class FeatureConstant.
  */
-public class FeatureLocation implements Comparable<FeatureLocation>{
+public class FeatureConstant implements Comparable<FeatureConstant>{
 	
 	/** The corresponding feature on this location. */
 	public Feature corresponding;
@@ -33,7 +33,7 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	/** The not flag. */
 	public Boolean notFlag;
 
-	/** The list of features of combined feature locaions (i.e. Feature 1 && Feature 2. */
+	/** The list of features of combined feature constants in a location (i.e. Feature 1 && Feature 2. */
 	public LinkedList<UUID> combinedWith;
 
 	
@@ -43,11 +43,11 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	
 	
 	
-	/** The method that contains the featurelocation (if inside a method); else = null.  */
+	/** The method that contains the featureconstant (if inside a method); else = null.  */
 	public Method inMethod;
 
 	/**
-	 * Instantiates a new feature location.
+	 * Instantiates a new featureconstant.
 	 *
 	 * @param filePath the file path
 	 * @param start the start
@@ -55,7 +55,7 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	 * @param nestingDepth the nesting depth
 	 * @param notFlag the not flag
 	 */
-	public FeatureLocation(String filePath, int start, int end, int nestingDepth, Boolean notFlag)
+	public FeatureConstant(String filePath, int start, int end, int nestingDepth, Boolean notFlag)
 	{
 		this.filePath = filePath;
 		this.id = java.util.UUID.randomUUID();
@@ -79,7 +79,7 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	 *
 	 * @return the boolean
 	 */
-	public Boolean CombinedLocation()
+	public Boolean CombinedConstant()
 	{
 		if (combinedWith.size() == 0)
 			return false;
@@ -202,9 +202,9 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	}
 
 	/**
-	 * Sets the discipline of the feature location based on node inside the feature (e.g, a FeatureLocation containing one case is undisciplined)
+	 * Sets the discipline of the feature constant based on node inside the feature (e.g, a FeatureLocation containing one case is undisciplined)
 	 *
-	 * @param node a node inside the feature location
+	 * @param node a node inside the feature constant
 	 */
 	public void SetDiscipline(Node node)
 	{
@@ -266,7 +266,7 @@ public class FeatureLocation implements Comparable<FeatureLocation>{
 	}
 
 	@Override
-	public int compareTo(FeatureLocation arg0) 
+	public int compareTo(FeatureConstant arg0) 
 	{
 		if (this.start > arg0.start)
 			return 1;
