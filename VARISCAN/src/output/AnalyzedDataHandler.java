@@ -687,7 +687,7 @@ public class AnalyzedDataHandler {
 	 */
 	private boolean skipMethod(Method method)
 	{
-		if (conf.Method_LoacToLocRatio_Mand && (method.GetLinesOfAnnotatedCode() / method.loc) < conf.Method_LoacToLocRatio)
+		if (conf.Method_LoacToLocRatio_Mand && ((float) method.GetLinesOfAnnotatedCode() / (float) method.loc) < conf.Method_LoacToLocRatio)
 			return true;
 		if (conf.Method_NumberOfFeatureConstants_Mand && method.GetFeatureConstantCount() < conf.Method_NumberOfFeatureConstants)
 			return true;
