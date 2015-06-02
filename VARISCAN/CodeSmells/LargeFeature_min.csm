@@ -1,0 +1,16 @@
+## "#" can be used for descriptions
+## A ";mandatory" behind a value means, that the corresponding attribute must be a part of the result for each feature location
+## A location that does not include the corresponding attribute, won't be part of the result.
+
+## A ";X" (where X is a number e.g, 2.0) is a weight value for smell value calculation 
+
+#### Feature-based Ratios/Thresholds ####
+
+## A ratio the defines the difference between LOFC of a feature to the mean LOFC of all features.
+## Example: MeanLofcRatio=1.5; MeanLofc=200 --> All features with LOFC >= 300 
+Feature_MeanLofcRatio=1;mandatory
+
+## A ratio that defines the amount of feature locations to the total amount of feature locations.
+## Example: NoflToSumRatio=0.1; Total NOFL=500 --> All features with more than 50 feature locations
+Feature_NoFeatureConstantsRatio=0.1;mandatory
+

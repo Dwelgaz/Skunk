@@ -3,12 +3,10 @@ package data;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.w3c.dom.Document;
 
 public class File 
 {
@@ -110,6 +108,8 @@ public class File
 					if (!line.contains("*/"))
 						multiline = true;
 				}
+				else
+					loc++;
 				
 				index++;
 			}
@@ -224,7 +224,7 @@ public class File
 	
 
 	/**
-	 * Cet the amount of negated annotations
+	 * Set the amount of negated annotations
 	 *
 	 * @return the amount of negated annotations
 	 */

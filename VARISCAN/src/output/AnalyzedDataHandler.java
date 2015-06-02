@@ -159,7 +159,7 @@ public class AnalyzedDataHandler {
 			FileUtils.write(new File(fileName + "files.txt"), files);
 			FileUtils.write(new File(fileName + "methods.txt"), methods);
 			FileUtils.write(new File(fileName + "features.txt"), features);
-			System.out.println("Result files saved to the working directory...");
+			System.out.println("Detection result files saved to the working directory...");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -352,23 +352,23 @@ public class AnalyzedDataHandler {
 		int completeLoac = 0;
 		float percentOfLoc = 0;
 		
-		for (FeatureConstant loc : results.keySet())
+		for (FeatureConstant constant : results.keySet())
 		{
 			// get the amount of feature constants by saving each feature constant name
-			if (!constants.contains(loc.corresponding.Name))
-				constants.add(loc.corresponding.Name);
+			if (!constants.contains(constant.corresponding.Name))
+				constants.add(constant.corresponding.Name);
 			
 			// add lines of code to result
-			completeLofc += loc.end-loc.start;
+			completeLofc += constant.end-constant.start;
 			
 			// add all lines per file to the data structure, that are part of the feature constant... no doubling for loac calculation
-			if (!loacs.keySet().contains(loc.filePath))
-				loacs.put(loc.filePath, new ArrayList<Integer>());
+			if (!loacs.keySet().contains(constant.filePath))
+				loacs.put(constant.filePath, new ArrayList<Integer>());
 			
-			for (int i = loc.start; i <= loc.end; i++)
+			for (int i = constant.start; i <= constant.end; i++)
 			{
-				if (!loacs.get(loc.filePath).contains(i))
-					loacs.get(loc.filePath).add(i);
+				if (!loacs.get(constant.filePath).contains(i))
+					loacs.get(constant.filePath).add(i);
 			}
 		}
 		
@@ -420,7 +420,7 @@ public class AnalyzedDataHandler {
  		this.createFeatureCSV(fileName +"features.csv", writer, csv);
  		this.createFileCSV(fileName + "files.csv" , writer, csv);
  		
- 		System.out.println("Result files saved to the working directory...");
+ 		System.out.println("Metric files saved to the working directory");
  	}
 
  	/**
@@ -503,7 +503,7 @@ public class AnalyzedDataHandler {
  			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
  		
  			// add the header for the csv file
- 	 		Object [] FeatureHeader = {"Name", "LGSmell", "SSSmell ","ConstantsSmell", "LOFCSmell", "CUSmell", "NOFC", "MAXNOFC", "LOFC", "MEANLOFC"};
+ 	 		Object [] FeatureHeader = {"Name", "LGSmell", "SSSmell ","ConstantsSmell", "LOFCSmell", "CUSmell", "NOFC", "MAXNOFC", "LOFC", "MEANLOFC", "NOCU"};
  			csv.printRecord(FeatureHeader);
  			
  			// calculate values and add records
@@ -555,7 +555,7 @@ public class AnalyzedDataHandler {
  		float sumLG = constSmell + lofcSmell;
  		float sumSS = constSmell + compilUnitsSmell;
  		
- 		Object[] result = new Object[10];
+ 		Object[] result = new Object[11];
  		result[0] = feat.Name;
  		result[1] = sumLG;
  		result[2] = sumSS;
@@ -567,6 +567,7 @@ public class AnalyzedDataHandler {
  		result[7] = FeatureExpressionCollection.numberOfFeatureConstants;
  		result[8] = feat.getLofc();
  		result[9] = FeatureExpressionCollection.GetMeanLofc();
+ 		result[10] = feat.compilationFiles.size();
  		
  		return result;
  	}

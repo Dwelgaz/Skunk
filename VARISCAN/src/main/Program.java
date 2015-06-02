@@ -91,11 +91,18 @@ public class Program {
 	private static boolean analyzeInput(String[] args)
 	{
 		// for easier handling, transform to list
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].contains("--"))
+				args [i] = args[i].toLowerCase();
+		}
+		
 		List<String> input = Arrays.asList(args);
 		
 		
+		
 		// get the path to the codesmell configuration
-		if (containsArgument(args, "--config"))
+		if (input.contains("--config"))
 		{
 			try 
 			{
@@ -118,13 +125,13 @@ public class Program {
 			}
 		}
 		
-		if (containsArgument(args, "--saveintermediate"))
+		if (input.contains("--saveintermediate"))
 		{
 			saveIntermediate = true;
 		}
 		
 		// get the path of the source folder
-		if (containsArgument(args, "--source"))
+		if (input.contains("--source"))
 		{
 			try {
 				String path = input.get(input.indexOf("--source") + 1);
@@ -157,24 +164,6 @@ public class Program {
 		}
 		
 		return true;
-	}
-	
-	/**
-	 * Checks if the arguments contain a specific option, while ignoring case
-	 *
-	 * @param args the args
-	 * @param option the options
-	 * @return true, the arguments contain the option
-	 */
-	private static boolean containsArgument(String[] args, String option)
-	{
-		for (String arg : args)
-		{
-			if (arg.equalsIgnoreCase(option))
-				return true;
-		}
-		
-		return false;
 	}
 
 }
