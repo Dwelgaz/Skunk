@@ -687,14 +687,16 @@ public class AnalyzedDataHandler {
 	 */
 	private boolean skipMethod(Method method)
 	{
+		boolean result = false;
+	
 		if (conf.Method_LoacToLocRatio_Mand && ((float) method.GetLinesOfAnnotatedCode() / (float) method.loc) < conf.Method_LoacToLocRatio)
-			return true;
+			result = true;
 		if (conf.Method_NumberOfFeatureConstants_Mand && method.GetFeatureConstantCount() < conf.Method_NumberOfFeatureConstants)
-			return true;
+			result = true;
 		if (conf.Method_NestingSum_Mand && method.nestingSum < conf.Method_NestingSum)
-			return true;
+			result = true;
 		
-		return false;
+		return result;
 	}
 	
 	/**
@@ -705,12 +707,14 @@ public class AnalyzedDataHandler {
 	 */
 	private boolean skipFeature(Feature feat)
 	{
-		if (conf.Feature_NoFeatureConstantsRatio_Mand && (feat.getConstants().size() < conf.Feature_NoFeatureConstantsRatio))
-			return true;
-		if (conf.Feature_ProjectLocRatio_Mand && (((float) feat.getLofc() / (float) FeatureExpressionCollection.GetLoc()) < conf.Feature_ProjectLocRatio))
-			return true;
+		boolean result = true;
 		
-		return false;
+		if (conf.Feature_NoFeatureConstantsRatio_Mand && (feat.getConstants().size() < conf.Feature_NoFeatureConstantsRatio))
+			result = true;
+		if (conf.Feature_ProjectLocRatio_Mand && (((float) feat.getLofc() / (float) FeatureExpressionCollection.GetLoc()) < conf.Feature_ProjectLocRatio))
+			result = true;
+		
+		return result;
 	}
 	
 	/**** CSV Start End Saving *****/
