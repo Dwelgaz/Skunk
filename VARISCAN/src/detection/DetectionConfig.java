@@ -176,16 +176,10 @@ public class DetectionConfig {
 		return res;
 	}
 	
-	// TODO Output auch als Excel/CSV
-	
-	// Ausgabewerte auch noch anzeigen
-	// Attributes overview feature code
-	// Generelle Übersichtsdaten der Projekte (Metriken) in Overview
 	// TODO Annotation File --> selbe wie bundle, nur auf file ebene
 	// TODO Speculative Generalty
 	// TODO In Output für jede Reason die entsprechende Zahl noch anzeigen
 	
-	// TODO CSM Template für definierte Code Smells
 	
 	
 	

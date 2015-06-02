@@ -435,12 +435,9 @@ public class AnalyzedDataHandler {
  		try
  		{
  			writer = new FileWriter(fileName);
- 			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
- 			
- 			
- 			// TODO NOFC_NonDup
+ 			csv = new CSVPrinter(writer, CSVFormat.EXCEL);
  			// add the header for the csv file
- 	 		Object [] FileHeader = {"File", "LOC", "LOAC", "LOFC", "NOFC_Dup", "NOFL", "NONEST"};
+ 	 		Object [] FileHeader = {"File", "LOC", "LOAC", "LOFC", "NOFC_Dup", "NOFC_NonDup", "NOFL", "NONEST"};
  			csv.printRecord(FileHeader);
  			
  			// calculate values and add records
@@ -503,7 +500,7 @@ public class AnalyzedDataHandler {
 		try
  		{
  			writer = new FileWriter(fileName);
- 			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
+ 			csv = new CSVPrinter(writer, CSVFormat.EXCEL);
  		
  			// TODO Wieviele NOFC in Kombination
  			// add the header for the csv file
@@ -556,7 +553,7 @@ public class AnalyzedDataHandler {
  		float constSmell = this.conf.Feature_NoFeatureConstantsRatio_Weight * (((float) feat.getConstants().size()) / ((float) FeatureExpressionCollection.numberOfFeatureConstants));
  		
  		// LOFC/TotalLoc   																				
- 		float lofcSmell = this.conf.Feature_ProjectLocRatio_Weight * (((float)feat.getLofc()) / ((float) FeatureExpressionCollection.GetLoc()));	// TODO Fixen sollte ne 1-2
+ 		float lofcSmell = this.conf.Feature_ProjectLocRatio_Weight * (((float)feat.getLofc()) / ((float) FeatureExpressionCollection.GetLoc()));
  		
  		// CompilUnit/MaxCompilUnits
  		float compilUnitsSmell = ((float) feat.compilationFiles.size()) / ((float) FileCollection.Files.size());
@@ -591,7 +588,7 @@ public class AnalyzedDataHandler {
 		try
  		{
  			writer = new FileWriter(fileName);
- 			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
+ 			csv = new CSVPrinter(writer, CSVFormat.EXCEL);
  		
  			// add the header for the csv file
  	 		Object [] MethodHeader = {"File","Start", "Method","ABSmell","LocationSmell","ConstantsSmell", "NestingSmell", "LOC", "LOAC", "LOFC", "NOFL", "NOFC_Dup", "NOFC_NonDup", "NONEST"};
@@ -707,7 +704,7 @@ public class AnalyzedDataHandler {
 	 */
 	private boolean skipFeature(Feature feat)
 	{
-		boolean result = true;
+		boolean result = false;
 		
 		if (conf.Feature_NoFeatureConstantsRatio_Mand && (feat.getConstants().size() < conf.Feature_NoFeatureConstantsRatio))
 			result = true;
