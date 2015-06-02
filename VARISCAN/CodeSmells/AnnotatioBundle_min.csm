@@ -1,19 +1,7 @@
-## "#" can be used for descriptions
-## A ";mandatory" behind a value means, that the corresponding attribute must be a part of the result for each feature location
-## A location that does not include the corresponding attribute, won't be part of the result.
 
-## A ";X" (where X is a number e.g, 2.0) is a weight value for smell value calculation 
+Method_NumberOfFeatureConstants=1;mandatory
 
-
-## A threshold that defines how much feature locations must be within a method
-## Example: NumberOfFeatureLocs=5 --> All feature locations within a method that combined are more than 5 different feature locations.
-Method_NumberOfFeatureConstants=-1;mandatory
-
-## A threshold that defines how much nesting must exist inside a method. Each nesting is counted per feature location.
-## Example:
 Method_NestingSum=1;mandatory
 
-## A threshold that defines how much feature occurnces must be within the method
-## Example: NumberOfFeatureOccurences=3 --> A method with 3 lines of code with a ifdef annonation
 Method_NumberOfFeatureLocations=1;mandatory
 

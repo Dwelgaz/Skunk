@@ -383,8 +383,8 @@ public class AnalyzedDataHandler {
 		
 		// Complete overview
 		res += "\r\n\r\n\r\n>>> Complete Overview\r\n";
-		res += "Number of features constants: \t" + constants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
-		res += "Number of feature: \t" + countLocations  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.numberOfFeatureConstants + " locations)\r\n";
+		res += "Number of features: \t" + constants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
+		res += "Number of feature constants: \t" + countLocations  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.numberOfFeatureConstants + " locations)\r\n";
 		res += "Lines of annotated Code: \t" + completeLoac + " (" + percentOfLoc + "% of " + FeatureExpressionCollection.GetLoc() + " LOC)\r\n";
 		res += "Lines of feature code: \t\t" + completeLofc + "\r\n";
 		
@@ -436,7 +436,9 @@ public class AnalyzedDataHandler {
  		{
  			writer = new FileWriter(fileName);
  			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
- 		
+ 			
+ 			
+ 			// TODO NOFC_NonDup
  			// add the header for the csv file
  	 		Object [] FileHeader = {"File", "LOC", "LOAC", "LOFC", "NOFC_Dup", "NOFL", "NONEST"};
  			csv.printRecord(FileHeader);
@@ -478,14 +480,15 @@ public class AnalyzedDataHandler {
 	  */
 	private Object[] createFileRecord(data.File file)
  	{
- 		Object[] result = new Object[7];
+ 		Object[] result = new Object[8];
  		result[0] = file.filePath;
  		result[1] = file.loc;
  		result[2] = file.GetLinesOfAnnotatedCode();
  		result[3] = file.lofc;
  		result[4] = file.GetFeatureConstantCount();
- 		result[5] = file.numberOfFeatureLocations;
- 		result[6] = file.nestingSum;
+ 		result[5] = file.numberFeatureConstantsNonDup;
+ 		result[6] = file.numberOfFeatureLocations;
+ 		result[7] = file.nestingSum;
  		
  		return result;
  	}
@@ -502,14 +505,20 @@ public class AnalyzedDataHandler {
  			writer = new FileWriter(fileName);
  			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
  		
+ 			// TODO Wieviele NOFC in Kombination
  			// add the header for the csv file
- 	 		Object [] FeatureHeader = {"Name", "LGSmell", "SSSmell ","ConstantsSmell", "LOFCSmell", "CUSmell", "NOFC", "MAXNOFC", "LOFC", "MEANLOFC", "NOCU"};
+ 	 		Object [] FeatureHeader = {"Name", "LGSmell", "SSSmell ","ConstantsSmell", "LOFCSmell", "CUSmell", "NOFC", "MAXNOFC", "LOFC", "ProjectLOC", "NOCU"};
  			csv.printRecord(FeatureHeader);
  			
  			// calculate values and add records
  			List<Object[]> featureData = new ArrayList<Object[]>();
  			for (Feature feat : FeatureExpressionCollection.GetFeatures())
+ 			{
+ 				if (skipFeature(feat))
+ 					continue;
+ 				
  				featureData.add(this.createFeatureRecord(feat));
+ 			}
  			
  			// sort after smellvalue
  			Collections.sort(featureData, new ComparatorChain<Object[]>(LGSmellComparator));
@@ -544,10 +553,10 @@ public class AnalyzedDataHandler {
 	 private Object[] createFeatureRecord(Feature feat)
  	{
  		// # featureConstants/#TotalLocations
- 		float constSmell = ((float) feat.getConstants().size()) / ((float) FeatureExpressionCollection.numberOfFeatureConstants);
+ 		float constSmell = this.conf.Feature_NoFeatureConstantsRatio_Weight * (((float) feat.getConstants().size()) / ((float) FeatureExpressionCollection.numberOfFeatureConstants));
  		
- 		// LOFC/TotalLoc
- 		float lofcSmell = ((float)feat.getLofc()) / ((float) FeatureExpressionCollection.GetMeanLofc());
+ 		// LOFC/TotalLoc   																				
+ 		float lofcSmell = this.conf.Feature_ProjectLocRatio_Weight * (((float)feat.getLofc()) / ((float) FeatureExpressionCollection.GetLoc()));	// TODO Fixen sollte ne 1-2
  		
  		// CompilUnit/MaxCompilUnits
  		float compilUnitsSmell = ((float) feat.compilationFiles.size()) / ((float) FileCollection.Files.size());
@@ -566,7 +575,7 @@ public class AnalyzedDataHandler {
  		result[6] = feat.getConstants().size();
  		result[7] = FeatureExpressionCollection.numberOfFeatureConstants;
  		result[8] = feat.getLofc();
- 		result[9] = FeatureExpressionCollection.GetMeanLofc();
+ 		result[9] = FeatureExpressionCollection.GetLoc();
  		result[10] = feat.compilationFiles.size();
  		
  		return result;
@@ -585,14 +594,21 @@ public class AnalyzedDataHandler {
  			csv = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
  		
  			// add the header for the csv file
- 	 		Object [] MethodHeader = {"File","Start", "Method","ABSmell","LocationSmell","ConstantsSmell", "NestingSmell", "LOC", "LOAC", "LOFC", "NOLC", "NOFC_Dup", "NONEST"};
+ 	 		Object [] MethodHeader = {"File","Start", "Method","ABSmell","LocationSmell","ConstantsSmell", "NestingSmell", "LOC", "LOAC", "LOFC", "NOFL", "NOFC_Dup", "NOFC_NonDup", "NONEST"};
  			csv.printRecord(MethodHeader);
  			
  			// calculate values and add records
  			List<Object[]> methodData = new ArrayList<Object[]>();
  			for (List<Method> methods : MethodCollection.methodsPerFile.values())
+ 			{
  				for (Method meth : methods)
+ 				{
+ 					if (skipMethod(meth))
+ 						continue;
+ 					
  					methodData.add(createMethodRecord(meth));
+ 				}
+ 			}
  			
  			// sort after smellvalue
  			Collections.sort(methodData, new ComparatorChain<Object[]>(ABSmellComparator));
@@ -629,16 +645,16 @@ public class AnalyzedDataHandler {
 	{
 		// calculate smell values
 		// Loac/Loc * #FeatLocs
-		float featLocSmell = conf.Method_NumberOfFeatureLocations_Weight * (((float) currentMethod.GetLinesOfAnnotatedCode() / (float) currentMethod.loc) * (float) currentMethod.numberFeatureLocations);;
+		float featLocSmell = conf.Method_LoacToLocRatio_Weight * (((float) currentMethod.GetLinesOfAnnotatedCode() / (float) currentMethod.loc) * (float) currentMethod.numberFeatureLocations);
 		
 		// #Constants/#FeatLocs
-		float featConstSmell = conf.Method_NumberOfFeatureConstants_Weight * ((float) currentMethod.GetFeatureConstantCount() / (float) currentMethod.numberFeatureLocations);;
+		float featConstSmell = conf.Method_NumberOfFeatureConstants_Weight * ((float) currentMethod.GetFeatureConstantCount() / (float) currentMethod.numberFeatureLocations);
 		
 		// Loac/Loc * #FeatLocs
-		float nestSumSmell = conf.Method_NestingSum_Weight * ((float) currentMethod.nestingSum / (float) currentMethod.numberFeatureLocations);;
+		float nestSumSmell = conf.Method_NestingSum_Weight * ((float) currentMethod.nestingSum / (float) currentMethod.numberFeatureLocations);
 		float sum = (featLocSmell + featConstSmell + nestSumSmell);
 	
-		Object[] result = new Object[13];
+		Object[] result = new Object[14];
 		
 		// File Start Method
 		result[0] = currentMethod.filePath;
@@ -657,40 +673,45 @@ public class AnalyzedDataHandler {
 		result[9] = currentMethod.lofc;
 		result[10] = currentMethod.numberFeatureLocations;
 		result[11] = currentMethod.GetFeatureConstantCount();
-		result[12] = currentMethod.nestingSum;
+		result[12] = currentMethod.numberFeatureConstantsNonDup;
+		result[13] = currentMethod.nestingSum;
 		
 		return result;
-
-//		String res = "";
-//		
-//		// show method smell value
-//		if (currentMethod != null)
-//		{
-//			
-//			if (conf.Method_NumberOfFeatureLocations != -1)
-//			{
-//				featLocSmell = conf.Method_NumberOfFeatureLocations_Weight * (((float) currentMethod.GetLinesOfAnnotatedCode() / (float) currentMethod.loc) * (float) currentMethod.numberFeatureLocations);
-//				res += "Loac/Loc * #FeatLocs = " + featLocSmell + "\r\n";
-//			}
-//			if (conf.Method_NumberOfFeatureConstants != -1)
-//			{
-//				featConstSmell = conf.Method_NumberOfFeatureConstants_Weight * ((float) currentMethod.GetFeatureConstantCount() / (float) currentMethod.numberFeatureLocations);
-//				res += "#FeatConstants/#FeatLocs = " + featConstSmell + "\r\n";
-//			}
-//			if (conf.Method_NestingSum != -1)
-//			{
-//				nestSumSmell = conf.Method_NestingSum_Weight * ((float) currentMethod.nestingSum / (float) currentMethod.numberFeatureLocations);
-//				res += "Loac/Loc * #FeatLocs = " + nestSumSmell + "\r\n";
-//			}
-//			
-//			float sum = (featLocSmell + featConstSmell + nestSumSmell);
-//			
-//			res += "Sum = " + sum + "\r\n\r\n"; 
-//		}
-//		
-//		return res;
 	}
 	
+	/**
+	 * Skip the method for csv file creation depending on the mandatory settings of the configuration
+	 *
+	 * @param method the method
+	 * @return true, if method does not fulfill mandatory settings
+	 */
+	private boolean skipMethod(Method method)
+	{
+		if (conf.Method_LoacToLocRatio_Mand && (method.GetLinesOfAnnotatedCode() / method.loc) < conf.Method_LoacToLocRatio)
+			return true;
+		if (conf.Method_NumberOfFeatureConstants_Mand && method.GetFeatureConstantCount() < conf.Method_NumberOfFeatureConstants)
+			return true;
+		if (conf.Method_NestingSum_Mand && method.nestingSum < conf.Method_NestingSum)
+			return true;
+		
+		return false;
+	}
+	
+	/**
+	 * Skip the feature for csv file creation depending on the mandatory settings of the configuration
+	 *
+	 * @param feat the feature
+	 * @return true, if feature does not fulfill mandatory settings
+	 */
+	private boolean skipFeature(Feature feat)
+	{
+		if (conf.Feature_NoFeatureConstantsRatio_Mand && (feat.getConstants().size() < conf.Feature_NoFeatureConstantsRatio))
+			return true;
+		if (conf.Feature_ProjectLocRatio_Mand && (((float) feat.getLofc() / (float) FeatureExpressionCollection.GetLoc()) < conf.Feature_ProjectLocRatio))
+			return true;
+		
+		return false;
+	}
 	
 	/**** CSV Start End Saving *****/
 }

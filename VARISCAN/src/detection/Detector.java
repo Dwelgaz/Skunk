@@ -376,7 +376,6 @@ public class Detector {
 					else
 						nestingStack.empty();
 				}
-			//}
 		}
 	}
 	
@@ -435,10 +434,10 @@ public class Detector {
 	 */
 	private void checkForFeatureNoFeatureConstantsToSum(Feature feat) 
 	{
-		if (this.config.Feature_NoFeatureConstantsToSumRatio != -1000)
+		if (this.config.Feature_NoFeatureConstantsRatio != -1000)
 		{
 			// amount of nofls the feature has to exceed for a smell
-			double minNofl = FeatureExpressionCollection.numberOfFeatureConstants * this.config.Feature_NoFeatureConstantsToSumRatio;
+			double minNofl = FeatureExpressionCollection.numberOfFeatureConstants * this.config.Feature_NoFeatureConstantsRatio;
 			
 			if (feat.getConstants().size() > minNofl)
 			{

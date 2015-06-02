@@ -131,7 +131,7 @@ public class Method
 	}
 
 	/**
-	 * Gets the annotation count.
+	 * Gets amount of feature constants (duplicated) 
 	 *
 	 * @return the int
 	 */
@@ -151,7 +151,7 @@ public class Method
 	}
 
 	/**
-	 * Gets the number of feature constants of the method
+	 * Gets the number of feature constants of the method (non-duplicated)
 	 *
 	 * @return the int
 	 */

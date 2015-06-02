@@ -20,7 +20,7 @@ public class DetectionConfig {
 	public float Feature_ProjectLocRatio_Weight = 1;
 	
 	/** A ratio that defines the ratio between the amount of feature locations for a feature to the amount of feature locations in the project */
-	public double Feature_NoFeatureConstantsToSumRatio = -1000;
+	public double Feature_NoFeatureConstantsRatio = -1000;
 	public boolean Feature_NoFeatureConstantsRatio_Mand = false;
 	public float Feature_NoFeatureConstantsRatio_Weight = 1;
 	
@@ -149,7 +149,7 @@ public class DetectionConfig {
 			res += "\r\nRatio - LOFC to mean LOFC: " + this.Feature_MeanLofcRatio + "; mandatory=" + this.Feature_MeanLofcRatio_Mand;
 		if (this.Feature_ProjectLocRatio != -1000)
 			res += "\r\nRatio - LOFC to LOC: " + this.Feature_ProjectLocRatio + "; mandatory=" + this.Feature_ProjectLocRatio_Mand;
-		if (this.Feature_NoFeatureConstantsToSumRatio != -1000)
+		if (this.Feature_NoFeatureConstantsRatio != -1000)
 			res += "\r\nRatio - Feature Constants(FC) to all FC: " + this.Feature_MeanLofcRatio + "; mandatory=" + this.Feature_MeanLofcRatio_Mand;
 		if (this.Feature_NumberOfCompilUnits != -1)
 			res += "\r\nAmount - Number of compilation units: " + this.Feature_NumberOfCompilUnits + "; mandatory=" + this.Feature_NumberOfCompilUnits_Mand;

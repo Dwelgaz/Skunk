@@ -1,16 +1,5 @@
-## "#" can be used for descriptions
-## A ";mandatory" behind a value means, that the corresponding attribute must be a part of the result for each feature location
-## A location that does not include the corresponding attribute, won't be part of the result.
 
-## A ";X" (where X is a number e.g, 2.0) is a weight value for smell value calculation 
-
-#### Feature-based Ratios/Thresholds ####
-
-## A ratio that defines the amount of feature locations to the total amount of feature locations.
-## Example: NoflToSumRatio=0.1; Total NOFL=500 --> All features with more than 50 feature locations
 Feature_NoFeatureConstantsRatio=0.1;mandatory
 
-## A threshold that defines in how many compilation units, a feature has to have at least one feature location.
-## Example: NumberOfCompilUnits=5; Features with 5 different feature locations if 5 compilation units
 Feature_NumberOfCompilUnits=2;mandatory
 

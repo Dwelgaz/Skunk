@@ -14,8 +14,8 @@
 ## Example: ProjectLocRatio=0.5; LOC=1000 --> All features with LOFC >= 500
 #Feature_ProjectLocRatio=0.15;mandatory
 
-## A ratio that defines the amount of feature locations to the total amount of feature locations.
-## Example: NoflToSumRatio=0.1; Total NOFL=500 --> All features with more than 50 feature locations
+## A ratio that defines the amount of feature constants (duplicated) to the total amount of feature constants (duplicated).
+## Example: NoFeatureConstantsRatio=0.1; Total NOFL=500 --> All features with more than 50 feature constants
 # Feature_NoFeatureConstantsRatio=-1000
 
 ## A threshold that defines in how many compilation units, a feature has to have at least one feature location.
@@ -33,11 +33,11 @@
 ## Example: LoacToLocRatio=0.5; LOC of Method=500 --> All feature locations within a method that combined result in a LOAC of more than 250
 # Method_LoacToLocRatio=-1000
 
-## A threshold that defines how much feature locations must be within a method
-## Example: NumberOfFeatureLocs=5 --> All feature locations within a method that combined are more than 5 different feature locations.
+## A threshold that defines how much feature constants (duplicated) must be within a method
+## Example: NumberOfFeatureConstants=5 --> All feature constants within a method that combined are more than 5 different feature constants.
 #Method_NumberOfFeatureConstants=-1
 
-## A threshold that defines how much feature constants must be within a method
+## A threshold that defines how much feature constants (non-duplicated) must be within a method
 ## Example: NumberOfFeatureConstants=5 --> All feature locations within a method that combined are more than 5 different feature constants.
 #Method_NumberOfFeatureConstantsNonDup=-1
 
@@ -50,7 +50,7 @@
 #Method_NestingDepthMin=1
 
 ## A threshold that defines how much feature occurnces must be within the method
-## Example: NumberOfFeatureOccurences=3 --> A method with 3 lines of code with a ifdef annonation
+## Example: NumberOfFeatureLocations=3 --> A method with 3 lines of code with a ifdef annonation
 #Method_NumberOfFeatureOLocations=1
 
 ## A threshold that defines how much negations must exist in a method

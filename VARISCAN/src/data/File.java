@@ -86,7 +86,13 @@ public class File
 			int index = 0;
 			boolean multiline = false;
 			for (String line : FileUtils.readLines(FileUtils.getFile(filePath)))
-			{
+			{	
+				
+				// TODO Gucken ob hier ein caller auf ne methode ist --> hashmap speichern
+				
+				
+				
+				
 				if (multiline)
 				{
 					this.emptyLines.add(index);

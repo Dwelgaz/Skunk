@@ -67,8 +67,8 @@ public class AttributeOverview {
 		
 		// Complete overview
 		String res = ">>> Overview "+ Reason +"\r\n";
-		res += "Number of features constants: \t" + this.featureConstants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
-		res += "Number of features: \t" + this.noFeatureLocs  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.numberOfFeatureConstants + " locations)\r\n";
+		res += "Number of features: \t" + this.featureConstants.size() + " (" + percentOfConstants + "% of " + FeatureExpressionCollection.GetFeatures().size() + " constants)\r\n";
+		res += "Number of feature constants: \t" + this.noFeatureLocs  + " (" + percentOfLocations + "% of " + FeatureExpressionCollection.numberOfFeatureConstants + " locations)\r\n";
 		res += "Lines of annotated Code: \t" + completeLoac + " (" + percentOfLoc + "% of " + FeatureExpressionCollection.GetLoc() + " LOC)\r\n";
 		res += "Lines of feature code: \t\t" + this.lofc + "\r\n\r\n";
 		

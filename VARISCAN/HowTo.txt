@@ -23,4 +23,8 @@ Examples:
 		
 	--processed examplePath --config examplePath2
 		Previously processed data will be loaded and the detection process will be performed afterwards. A result file will be saved to the working directory.
-		
+
+Results:
+	
+
+Metrics:

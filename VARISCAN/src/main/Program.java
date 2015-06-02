@@ -77,7 +77,7 @@ public class Program {
 			HashMap<FeatureConstant, ArrayList<EnumReason>> res = (HashMap<FeatureConstant, ArrayList<EnumReason>>) detector.Perform();
 			
 			AnalyzedDataHandler presenter = new AnalyzedDataHandler(conf);
-			//presenter.SaveTextResults(res);
+			presenter.SaveTextResults(res);
 			presenter.SaveCsvResults();
 		}
 	}
