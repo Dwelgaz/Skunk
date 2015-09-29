@@ -56,3 +56,40 @@
 ## A threshold that defines how much negations must exist in a method
 ## Example:
 # Method_NegationCount=-1
+
+
+
+
+#### File-based Ratios/Thresholds ####
+
+## A ratio that defines the percentage of LOFC to LOC in a method
+## Example: LofcToLocRatio=0.5; LOC of Method=500 --> All feature locations within a method that combined result in a LOFC of more than 250
+# File_LofcToLocRatio=-1000
+
+## A ratio that defines the percentage of LOAC to LOC in a method
+## Example: LoacToLocRatio=0.5; LOC of Method=500 --> All feature locations within a method that combined result in a LOAC of more than 250
+# File_LoacToLocRatio=-1000
+
+## A threshold that defines how much feature constants (duplicated) must be within a method
+## Example: NumberOfFeatureConstants=5 --> All feature constants within a method that combined are more than 5 different feature constants.
+# File_NumberOfFeatureConstants=-1
+
+## A threshold that defines how much feature constants (non-duplicated) must be within a method
+## Example: NumberOfFeatureConstants=5 --> All feature locations within a method that combined are more than 5 different feature constants.
+# File_NumberOfFeatureConstantsNonDup=-1
+
+## A threshold that defines how much nesting must exist inside a method. Each nesting is counted per feature location.
+## Example:
+# File_NestingSum=1
+
+## A threshold that defines how deep a nesting must go.
+## Example: NestingDepthMin=2 --> All feature locations within a method that build a nesting bundle with at least a nesting depth of 2
+# File_NestingDepthMin=1
+
+## A threshold that defines how much feature occurnces must be within the method
+## Example: NumberOfFeatureLocations=3 --> A method with 3 lines of code with a ifdef annonation
+# File_NumberOfFeatureOLocations=1
+
+## A threshold that defines how much negations must exist in a method
+## Example:
+# Method_NegationCount=-1

@@ -437,16 +437,21 @@ public class AnalyzedDataHandler {
  			writer = new FileWriter(fileName);
  			csv = new CSVPrinter(writer, CSVFormat.EXCEL);
  			// add the header for the csv file
- 	 		Object [] FileHeader = {"File", "LOC", "LOAC", "LOFC", "NOFC_Dup", "NOFC_NonDup", "NOFL", "NONEST"};
+ 	 		Object [] FileHeader = {"File", "AFSmell","LocationSmell","ConstantsSmell", "NestingSmell", "LOC", "LOAC", "LOFC", "NOFC_Dup", "NOFC_NonDup", "NOFL", "NONEST"};
  			csv.printRecord(FileHeader);
  			
  			// calculate values and add records
  			List<Object[]> fileData = new ArrayList<Object[]>();
  			for (data.File file : FileCollection.Files)
- 				fileData.add(this.createFileRecord(file));
+ 			{
+ 				if (skipFile(file))
+ 						continue;
+ 					
+ 				fileData.add(createFileRecord(file));
+ 			}
  			
  			// sort after smellvalue
- 			//Collections.sort(fileData, new ComparatorChain<Object[]>(LGSmellComparator));
+ 			Collections.sort(fileData, new ComparatorChain<Object[]>(ABSmellComparator));
  			
  			for (Object[] record : fileData)
  				csv.printRecord(record);
@@ -477,15 +482,30 @@ public class AnalyzedDataHandler {
 	  */
 	private Object[] createFileRecord(data.File file)
  	{
- 		Object[] result = new Object[8];
+		// calculate smell values
+		// Loac/Loc * #FeatLocs
+		float featLocSmell = conf.File_LoacToLocRatio_Weight * (((float) file.GetLinesOfAnnotatedCode() / (float) file.loc) * (float) file.numberOfFeatureLocations);
+		
+		// #Constants/#FeatLocs
+		float featConstSmell = conf.File_NumberOfFeatureConstants_Weight * ((float) file.GetFeatureConstantCount() / (float) file.numberOfFeatureLocations);
+		
+		// Loac/Loc * #FeatLocs
+		float nestSumSmell = conf.Method_NestingSum_Weight * ((float) file.nestingSum / (float) file.numberOfFeatureLocations);
+		float sum = (featLocSmell + featConstSmell + nestSumSmell);
+		
+ 		Object[] result = new Object[12];
  		result[0] = file.filePath;
- 		result[1] = file.loc;
- 		result[2] = file.GetLinesOfAnnotatedCode();
- 		result[3] = file.lofc;
- 		result[4] = file.GetFeatureConstantCount();
- 		result[5] = file.numberFeatureConstantsNonDup;
- 		result[6] = file.numberOfFeatureLocations;
- 		result[7] = file.nestingSum;
+ 		result[1] = sum;
+ 		result[2] = featLocSmell;
+ 		result[3] = featConstSmell;
+ 		result[4] = nestSumSmell;
+ 		result[5] = file.loc;
+ 		result[6] = file.GetLinesOfAnnotatedCode();
+ 		result[7] = file.lofc;
+ 		result[8] = file.GetFeatureConstantCount();
+ 		result[9] = file.numberFeatureConstantsNonDup;
+ 		result[10] = file.numberOfFeatureLocations;
+ 		result[11] = file.nestingSum;
  		
  		return result;
  	}
@@ -691,6 +711,26 @@ public class AnalyzedDataHandler {
 		if (conf.Method_NumberOfFeatureConstants_Mand && method.GetFeatureConstantCount() < conf.Method_NumberOfFeatureConstants)
 			result = true;
 		if (conf.Method_NestingSum_Mand && method.nestingSum < conf.Method_NestingSum)
+			result = true;
+		
+		return result;
+	}
+	
+	/**
+	 * Skip the method for csv file creation depending on the mandatory settings of the configuration
+	 *
+	 * @param method the method
+	 * @return true, if method does not fulfill mandatory settings
+	 */
+	private boolean skipFile(data.File file)
+	{
+		boolean result = false;
+	
+		if (conf.File_LoacToLocRatio_Mand && ((float) file.GetLinesOfAnnotatedCode() / (float) file.loc) < conf.File_LoacToLocRatio)
+			result = true;
+		if (conf.File_NumberOfFeatureConstants_Mand && file.GetFeatureConstantCount() < conf.File_NumberOfFeatureConstants)
+			result = true;
+		if (conf.File_NestingSum_Mand && file.nestingSum < conf.File_NestingSum)
 			result = true;
 		
 		return result;

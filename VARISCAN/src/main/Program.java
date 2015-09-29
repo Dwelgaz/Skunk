@@ -70,6 +70,24 @@ public class Program {
 				ProcessedDataHandler.SaveProcessedData();
 		}
 		
+		
+		// display loc, loac, #feat, NOFL and NOFC
+		System.out.println(FeatureExpressionCollection.GetLoc() + " Loc");
+		System.out.println(FeatureExpressionCollection.GetCount() + " Features");
+		System.out.println(FeatureExpressionCollection.numberOfFeatureConstants + " Feature Constants");
+		
+		int loac = 0;
+		int nofl = 0;
+		for (data.File f : FileCollection.Files)
+		{
+			loac += f.GetLinesOfAnnotatedCode();
+			nofl += f.numberOfFeatureLocations;
+		}
+		
+		System.out.println(loac + " Loac: " + (loac * 100) / FeatureExpressionCollection.GetLoc());
+		System.out.println(nofl + " nofl");
+	
+		
 		// run detection with current configuration
 		if (conf != null)
 		{

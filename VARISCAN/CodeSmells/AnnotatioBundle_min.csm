@@ -1,8 +1,8 @@
-Method_LoacToLocRatio=0.4;mandatory
+Method_LoacToLocRatio=0.5;mandatory
 
-Method_NumberOfFeatureConstants=1;mandatory
+Method_NumberOfFeatureConstants=2;mandatory
 
 Method_NestingSum=1;mandatory
 
-Method_NumberOfFeatureLocations=1;mandatory
+Method_NumberOfFeatureLocations=2;mandatory
 

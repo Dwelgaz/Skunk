@@ -69,6 +69,46 @@ public class DetectionConfig {
 	public boolean Method_NumberOfFeatureLocations_Mand = false;
 	public float Method_NumberOfFeatureLocations_Weight = 1;
 	
+	/** A ratio that defines the percentage of lofc to loc (of a method) (1 = 100% of the code*/
+	public double File_LofcToLocRatio = -1000;
+	public boolean File_LofcToLocRatio_Mand = false;
+	public float File_LofcToLocRatio_Weight = 1;
+	
+	/** A ratio that defines the percentage of loac to loc (of a method) (1 = 100% of the code) */
+	public double File_LoacToLocRatio = -1000;
+	public boolean File_LoacToLocRatio_Mand = false;
+	public float File_LoacToLocRatio_Weight = -1;
+	
+	/** The amount of feature locations a method should have minimally*/
+	public int File_NumberOfFeatureConstants = -1;
+	public boolean File_NumberOfFeatureConstants_Mand = false;
+	public float File_NumberOfFeatureConstants_Weight = 1;
+	
+	/** The amount of feature constants (without duples) a method should have minimally */
+	public int File_NumberOfFeatureConstantsNonDup = -1;
+	public boolean File_NumberOfFeatureConstantsNonDup_Mand = false;
+	public float File_NumberOfFeatureConstantsNonDup_Weight = 1;
+	
+	/** The minimal nesting depth of a method. (summarized nestings) */
+	public int File_NestingSum = -1;
+	public boolean File_NestingSum_Mand = false;
+	public float File_NestingSum_Weight = 1;
+	
+	/** The minimal nesting depth of a method.*/
+	public int File_NestingDepthMin = -1;
+	public boolean File_NestingDepthMin_Mand = false;
+	public float File_NestingDepthMin_Weight = 1;
+	
+	/** The minimal negation count of a method */
+	public int File_NegationCount = -1;
+	public boolean File_NegationCount_Mand = false;
+	public float File_NegationCount_Weight = 1;
+	
+	/** The minimal amount of featureoccurences. */
+	public int File_NumberOfFeatureLocations = -1;
+	public boolean File_NumberOfFeatureLocations_Mand = false;
+	public float File_NumberOfFeatureLocations_Weight = 1;
+	
 	/** Defines how much values have been set. */
 	public int SetValues = 0;
 	
@@ -172,6 +212,26 @@ public class DetectionConfig {
 			res += "\r\nAmount - Minimal nesting depth: " + this.Method_NestingDepthMin + "; mandatory=" + this.Method_NestingDepthMin_Mand;
 		if (this.Method_NegationCount != -1)
 			res += "\r\nAmount - Number of negations: " + this.Method_NegationCount + "; mandatory=" + this.Method_NegationCount_Mand;
+		
+		res += "\r\n\r\n[File-based Values]";
+		
+		if (this.File_LofcToLocRatio != -1000)
+			res += "\r\nRatio - LOFC to LOC: " + this.File_LofcToLocRatio + "; mandatory=" + this.File_LofcToLocRatio_Mand;
+		if (this.File_LoacToLocRatio != -1000)
+			res += "\r\nRatio - LOAC to LOC: " + this.File_LoacToLocRatio + "; mandatory=" + this.File_LoacToLocRatio_Mand;
+		if (this.File_NumberOfFeatureConstants != -1)
+			res += "\r\nAmount - Number of feature constants: " + this.File_NumberOfFeatureConstants + "; mandatory=" + this.File_NumberOfFeatureConstants_Mand;
+		if (this.File_NumberOfFeatureConstantsNonDup != -1)
+			res += "\r\nAmount - Number of feature constants (without doubles): " + this.File_NumberOfFeatureConstantsNonDup + "; mandatory=" + this.File_NumberOfFeatureConstantsNonDup_Mand;
+		if (this.File_NumberOfFeatureLocations != -1)
+			res += "\r\nAmount - Number of feature locations: " + this.File_NumberOfFeatureLocations + "; mandatory=" + this.File_NumberOfFeatureLocations_Mand;
+		if (this.File_NestingSum != -1)
+			res += "\r\nAmount - Number of nestings: " + this.File_NestingSum + "; mandatory=" + this.File_NestingSum_Mand;
+		if (this.File_NestingDepthMin != -1)
+			res += "\r\nAmount - Minimal nesting depth: " + this.File_NestingDepthMin + "; mandatory=" + this.File_NestingDepthMin_Mand;
+		if (this.File_NegationCount != -1)
+			res += "\r\nAmount - Number of negations: " + this.File_NegationCount + "; mandatory=" + this.File_NegationCount_Mand;
+		
 		
 		return res;
 	}
