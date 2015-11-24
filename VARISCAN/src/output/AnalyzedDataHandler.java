@@ -51,13 +51,8 @@ public class AnalyzedDataHandler {
 	public final static Comparator<FeatureConstant> FEATURECONSTANT_START_COMPARATOR = new Comparator<FeatureConstant>()
 	{
 		@Override public int compare(FeatureConstant f1, FeatureConstant f2)
-		{
-			if (f1.start > f2.start)
-				return 1;
-			else if (f1.start < f2.start)
-				return -1;
-			else
-				return 0;
+		{	
+			return Integer.compare(f1.start,f2.start);
 		}
 	};
 	
@@ -67,16 +62,18 @@ public class AnalyzedDataHandler {
 		@Override public int compare(FeatureConstant f1, FeatureConstant f2)
 		{
 			if (f1.inMethod == null)
+			{
+				if (f2.inMethod == null)
+					return 0;
 				return -1;
+			}
 			if (f2.inMethod == null)
 				return 1;
 			
-			if (f1.inMethod.start > f2.inMethod.start)
-				return 1;
-			else if (f1.inMethod.start < f2.inMethod.start)
-				return -1;
-			else
-				return 0;
+			int s1 = f1.inMethod.start;
+			int s2 = f2.inMethod.start;
+			
+			return Integer.compare(s1, s2);
 		}
 	};
 	
@@ -88,12 +85,19 @@ public class AnalyzedDataHandler {
 			float s1 = (float) f1[3];
 			float s2 = (float) f2[3];
 			
-			if (s1 > s2)
-				return -1;
-			else if (s1 < s2)
-				return 1;
-			else
-				return 0;
+			return Float.compare(s2, s1);
+		}
+	};
+	
+	/** The comparator that compares the smell value of the csv records. */
+	public final static Comparator<Object[]> AFSmellComparator = new Comparator<Object[]>()
+	{
+		@Override public int compare(Object[] f1, Object[] f2)
+		{
+			float s1 = (float) f1[1];
+			float s2 = (float) f2[1];
+			
+			return Float.compare(s2, s1);
 		}
 	};
 	
@@ -105,12 +109,7 @@ public class AnalyzedDataHandler {
 			float s1 = (float) f1[1];
 			float s2 = (float) f2[1];
 			
-			if (s1 > s2)
-				return -1;
-			else if (s1 < s2)
-				return 1;
-			else
-				return 0;
+			return Float.compare(s2, s1);
 		}
 	};
 	
@@ -451,7 +450,7 @@ public class AnalyzedDataHandler {
  			}
  			
  			// sort after smellvalue
- 			Collections.sort(fileData, new ComparatorChain<Object[]>(ABSmellComparator));
+ 			Collections.sort(fileData, new ComparatorChain<Object[]>(AFSmellComparator));
  			
  			for (Object[] record : fileData)
  				csv.printRecord(record);
@@ -570,10 +569,10 @@ public class AnalyzedDataHandler {
 	 private Object[] createFeatureRecord(Feature feat)
  	{
  		// # featureConstants/#TotalLocations
- 		float constSmell = this.conf.Feature_NoFeatureConstantsRatio_Weight * (((float) feat.getConstants().size()) / ((float) FeatureExpressionCollection.numberOfFeatureConstants));
+ 		float constSmell = this.conf.Feature_NumberNofc_Weight * (((float) feat.getConstants().size()) / ((float) FeatureExpressionCollection.numberOfFeatureConstants));
  		
  		// LOFC/TotalLoc   																				
- 		float lofcSmell = this.conf.Feature_ProjectLocRatio_Weight * (((float)feat.getLofc()) / ((float) FeatureExpressionCollection.GetLoc()));
+ 		float lofcSmell = this.conf.Feature_NumberLofc_Weight * (((float)feat.getLofc()) / ((float) FeatureExpressionCollection.GetLoc()));
  		
  		// CompilUnit/MaxCompilUnits
  		float compilUnitsSmell = ((float) feat.compilationFiles.size()) / ((float) FileCollection.Files.size());
@@ -746,9 +745,9 @@ public class AnalyzedDataHandler {
 	{
 		boolean result = false;
 		
-		if (conf.Feature_NoFeatureConstantsRatio_Mand && (feat.getConstants().size() < conf.Feature_NoFeatureConstantsRatio))
+		if (conf.Feature_NumberNofc_Mand && (feat.getConstants().size() < conf.Feature_NumberNofc))
 			result = true;
-		if (conf.Feature_ProjectLocRatio_Mand && (((float) feat.getLofc() / (float) FeatureExpressionCollection.GetLoc()) < conf.Feature_ProjectLocRatio))
+		if (conf.Feature_NumberLofc_Mand && (feat.getLofc() < conf.Feature_NumberLofc))
 			result = true;
 		
 		return result;

@@ -29,6 +29,16 @@ public class DetectionConfig {
 	public boolean Feature_NumberOfCompilUnits_Mand = false;
 	public float Feature_NumberOfCompilUnits_Weight = 1;
 	
+	/** The amount of lines of feature code per feature */
+	public double Feature_NumberLofc = -1;
+	public boolean Feature_NumberLofc_Mand = false;
+	public float Feature_NumberLofc_Weight = 1;
+	
+	/** The amount of nofc per feature */
+	public double Feature_NumberNofc = -1;
+	public boolean Feature_NumberNofc_Mand = false;
+	public float Feature_NumberNofc_Weight = 1;
+	
 	/** A ratio that defines the percentage of lofc to loc (of a method) (1 = 100% of the code*/
 	public double Method_LofcToLocRatio = -1000;
 	public boolean Method_LofcToLocRatio_Mand = false;
@@ -193,6 +203,10 @@ public class DetectionConfig {
 			res += "\r\nRatio - Feature Constants(FC) to all FC: " + this.Feature_MeanLofcRatio + "; mandatory=" + this.Feature_MeanLofcRatio_Mand;
 		if (this.Feature_NumberOfCompilUnits != -1)
 			res += "\r\nAmount - Number of compilation units: " + this.Feature_NumberOfCompilUnits + "; mandatory=" + this.Feature_NumberOfCompilUnits_Mand;
+		if (this.Feature_NumberLofc!= -1)
+			res += "\r\nAmount - Number LOFCs: " + this.Feature_NumberLofc + "; mandatory=" + this.Feature_NumberLofc_Mand;
+		if (this.Feature_NumberNofc != -1)
+			res += "\r\nAmount - Number of NOFC: " + this.Feature_NumberNofc + "; mandatory=" + this.Feature_NumberNofc_Mand;
 		
 		res += "\r\n\r\n[Method-based Values]";
 		

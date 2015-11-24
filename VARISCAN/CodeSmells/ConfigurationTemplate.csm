@@ -22,6 +22,10 @@
 ## Example: NumberOfCompilUnits=5; Features with 5 different feature locations if 5 compilation units
 # Feature_NumberOfCompilUnits=2
 
+# Feature_NumberNofc=-1
+
+# Feature_NumberLofc=-1
+
 
 #### Method-based Ratios/Thresholds ####
 

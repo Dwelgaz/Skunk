@@ -79,11 +79,15 @@ public class Detector {
 			mandatories.add(EnumReason.LARGEFEATURE_LOFCTOMEANLOFC);
 		if (config.Feature_ProjectLocRatio_Mand)
 			mandatories.add(EnumReason.LARGEFEATURE_LOFCTOLOC);
+		if (config.Feature_NumberLofc_Mand)
+			mandatories.add(EnumReason.LARGEFEATURE_NUMBERLOFC);
+		if (config.Feature_NumberNofc_Mand)
+			mandatories.add(EnumReason.LARGEFEATURE_NUMBERNOFC);
 		if (config.Feature_NoFeatureConstantsRatio_Mand)
 			mandatories.add(EnumReason.SHOTGUNSURGERY_NOFCOSUMNOFC);
 		if (config.Feature_NumberOfCompilUnits_Mand)
 			mandatories.add(EnumReason.SHOTGUNSURGERY_NUMBERCOMPILATIONUNITS);
-		
+
 		if (config.Method_LoacToLocRatio_Mand)
 			mandatories.add(EnumReason.ANNOTATIONBUNDLE_LOACTOLOC);
 		if (config.Method_LofcToLocRatio_Mand)
@@ -203,6 +207,10 @@ public class Detector {
 			checkForFeatureNoFeatureConstantsToSum(feat);
 			
 			checkForFeatureCompilUnits(feat);
+			
+			checkForFeatureNofc(feat);
+			
+			checkForFeatureLofc(feat);
 			
 			for (FeatureConstant constant : feat.getConstants())
 			{
@@ -724,7 +732,39 @@ public class Detector {
 		}
 	}
 	
+	/**
+	 * Checks if the feature exceeds the threshold for lofc.
+	 *
+	 * @param feat the feat
+	 */
+	private void checkForFeatureLofc(Feature feat) 
+	{
+		if (this.config.Feature_NumberLofc != -1)
+		{
+			if (feat.getLofc() > this.config.Feature_NumberLofc)
+			{
+				for(FeatureConstant loc : feat.getConstants())
+					this.addFeatureLocWithReason(loc, EnumReason.LARGEFEATURE_NUMBERLOFC);
+			}
+		}
+	}
 	
+	/**
+	 * Checks if the feature exceeds the threshold for nofc.
+	 *
+	 * @param feat the feat
+	 */
+	private void checkForFeatureNofc(Feature feat) 
+	{
+		if (this.config.Feature_NumberNofc != -1)
+		{
+			if (feat.constants.size() > this.config.Feature_NumberNofc)
+			{
+				for(FeatureConstant loc : feat.getConstants())
+					this.addFeatureLocWithReason(loc, EnumReason.LARGEFEATURE_NUMBERNOFC);
+			}
+		}
+	}
 	
 	/**
 	 * Adds the feature constant to the result list with the specified reason, or appends another reason if the location is already inside the result list.
